@@ -4,7 +4,7 @@ const Amorph = require('amorph')
 const amorphNumber = require('amorph-number')
 const amorphBoolean = require('amorph-boolean')
 
-module.exports = function testCta(totalSupply, balances, hasControls, minBid, topBid) {
+module.exports = function testCta(totalSupply, balances, minBid, topBid) {
   describe('cta state', () => {
     it(`should have totalSupply of ${totalSupply}`, () => {
       return cta0Stub.promise.then((cta0) => {
@@ -15,13 +15,6 @@ module.exports = function testCta(totalSupply, balances, hasControls, minBid, to
       it(`account ${index} should have balance of ${balances[index]}`, () => {
         return cta0Stub.promise.then((cta0) => {
           return cta0.fetch('balanceOf(address)', [account.address]).should.eventually.amorphEqual(Amorph.from(amorphNumber.unsigned, balances[index]))
-        })
-      })
-    })
-    accounts.forEach((account, index) => {
-      it(`account ${index} ${hasControls[index] ? 'should' : 'should NOT' } have control`, () => {
-        return cta0Stub.promise.then((cta0) => {
-          return cta0.fetch('hasControl(address)', [account.address]).should.eventually.amorphEqual(Amorph.from(amorphBoolean, hasControls[index]))
         })
       })
     })

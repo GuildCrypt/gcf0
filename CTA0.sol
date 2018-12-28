@@ -12,6 +12,7 @@ contract CTA0 is ERC20 {
   address public currencyAddress;
   address public gc0Address;
   uint256 public gc0TokenId;
+  uint256 public auctionAllowedAt;
   uint256 private _sunsetInitiatedAt;
 
   uint256 public sunsetLength;
@@ -20,7 +21,7 @@ contract CTA0 is ERC20 {
 
   uint256 public auctionStartedAt;
   uint256 public auctionCompletedAt;
-  uint256 public minBid;
+  uint256 public minBid = 1;
   uint256 public minBidDeltaMilliperun;
 
   uint256 public topBid;
@@ -32,6 +33,7 @@ contract CTA0 is ERC20 {
     address _gc0Address,
     uint256 _gc0TokenId,
     uint256 _totalSupply,
+    uint256 _auctionAllowedAt,
     uint256 _sunsetBuffer,
     uint256 _minAuctionCompleteWait,
     uint256 _minBidDeltaMilliperun
@@ -39,16 +41,13 @@ contract CTA0 is ERC20 {
     currencyAddress = _currencyAddress;
     gc0Address = _gc0Address;
     gc0TokenId = _gc0TokenId;
+    auctionAllowedAt = _auctionAllowedAt;
     sunsetLength = GC0(_gc0Address).sunsetLength(_gc0TokenId);
     sunsetBuffer = _sunsetBuffer;
     minAuctionCompleteWait = _minAuctionCompleteWait;
     minBidDeltaMilliperun = _minBidDeltaMilliperun;
 
     _mint(msg.sender, _totalSupply);
-  }
-
-  function hasControl(address _address) public view returns(bool) {
-    return balanceOf(_address) > (totalSupply() - balanceOf(_address));
   }
 
   function hasGc0TokenOwnership() public view returns(bool) {
@@ -63,24 +62,13 @@ contract CTA0 is ERC20 {
     return (sunsetInitiatedAt() + sunsetLength - sunsetBuffer) > now;
   }
 
-  function startAuction(uint256 _minBid) public {
+  function startAuction(uint256) public {
     require(auctionStartedAt == 0);
     require(
-      hasControl(msg.sender)
+      auctionAllowedAt < now
       || isInSunsetBufferPeriod()
     );
     auctionStartedAt = now;
-    minBid = _minBid;
-  }
-
-  function cancelAuction() public {
-    require(hasControl(msg.sender));
-    require(isInSunsetBufferPeriod() == false);
-    require(auctionStartedAt != 0);
-    require(auctionCompletedAt == 0);
-    require(topBidder == address(0));
-    auctionStartedAt = 0;
-    minBid = 0; //TODO: is this necessary?
   }
 
   function submitBid(uint256 _bid) public {
@@ -121,7 +109,6 @@ contract CTA0 is ERC20 {
   function payout() public {
     require(balanceOf(msg.sender) > 0);
     require(auctionCompletedAt > 0);
-
     require(ERC20(currencyAddress).transfer(msg.sender, balanceOf(msg.sender) * topBid));
     _burn(msg.sender, balanceOf(msg.sender));
   }
