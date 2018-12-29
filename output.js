@@ -4,7 +4,7 @@ const fs = require('fs')
 
 const zeppelinContractsDir = `${__dirname}/node_modules/openzeppelin-solidity/contracts`
 
-module.exports = parseSolcOutput(solc.compile({
+module.exports = solc.compile({
     sources: {
       'math/SafeMath.sol': fs.readFileSync(`${zeppelinContractsDir}/math/SafeMath.sol`, 'utf8'),
       'utils/Address.sol': fs.readFileSync(`${zeppelinContractsDir}/utils/Address.sol`, 'utf8'),
@@ -19,6 +19,6 @@ module.exports = parseSolcOutput(solc.compile({
       'ERC20.sol': fs.readFileSync(`${zeppelinContractsDir}/token/ERC20/ERC20.sol`, 'utf8'),
       'ownership/Ownable.sol': fs.readFileSync(`${zeppelinContractsDir}/ownership/Ownable.sol`, 'utf8'),
       'GC0.sol': fs.readFileSync(`${__dirname}/node_modules/guildcrypt-gc0/GC0.sol`, 'utf8'),
-      'CTA0.sol': fs.readFileSync(`${__dirname}/CTA0.sol`, 'utf8'),
+      'GCF0.sol': fs.readFileSync(`${__dirname}/GCF0.sol`, 'utf8'),
     }
-  }, 1))
+  }, 1)

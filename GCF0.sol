@@ -5,7 +5,7 @@ import "ERC721.sol";
 import "ERC20.sol";
 import "math/SafeMath.sol";
 
-contract CTA0 is ERC20 {
+contract GCF0 is ERC20 {
 
   using SafeMath for uint256;
 

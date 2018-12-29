@@ -1,6 +1,6 @@
 const ultralightbeam = require('./ultralightbeam')
-const cta0Info = require('../cta0Info')
-const gc0Info = require('../gc0Info')
+const gcf0Info = require('../')
+const gc0Info = require('./gc0Info')
 const currencyInfo = require('./currencyInfo')
 const Amorph = require('amorph')
 const amorphNumber = require('amorph-number')
@@ -8,15 +8,15 @@ const accounts = require('./accounts')
 const FailedTransactionError = require('ultralightbeam/lib/errors/FailedTransaction')
 const getRandomAmorph = require('ultralightbeam/lib/getRandomAmorph')
 const BluebirdStub = require('bluebird-stub')
-const testCta = require('./testCta')
+const testGcf = require('./testGcf')
 const testCurrency = require('./testCurrency')
-const cta0Stub = require('./cta0Stub')
+const gcf0Stub = require('./gcf0Stub')
 const currencyStub = require('./currencyStub')
 const amorphAscii = require('amorph-ascii')
 const chai = require('chai')
 const amorphBoolean = require('amorph-boolean')
 
-describe('cta', () => {
+describe('gcf0', () => {
 
   const name = Amorph.from(amorphAscii, 'GuildCrypt 0')
   const symbol = Amorph.from(amorphAscii, 'GC:0')
@@ -78,7 +78,7 @@ describe('cta', () => {
 
 
   let gc0
-  let cta0
+  let gcf0
   let currency
 
   describe('setup gc0', () => {
@@ -120,9 +120,9 @@ describe('cta', () => {
       }).getConfirmation()
     })
   })
-  describe('setup cta0', () => {
-    it('should deploy cta0', () => {
-      return ultralightbeam.solDeploy(cta0Info.code, cta0Info.abi, [
+  describe('setup gcf0', () => {
+    it('should deploy gcf0', () => {
+      return ultralightbeam.solDeploy(gcf0Info.code, gcf0Info.abi, [
         currency.address,
         gc0.address,
         wholeTokens.a.id,
@@ -133,48 +133,48 @@ describe('cta', () => {
         fracturedTokens.a0.minBidDeltaMilliperun
       ], {
         from: accounts[1]
-      }).then((_cta0) => {
-        cta0 = _cta0
-        cta0Stub.resolve(cta0)
+      }).then((_gcf0) => {
+        gcf0 = _gcf0
+        gcf0Stub.resolve(gcf0)
       })
     })
-    it('cta0 accounts[1] should have correct gc0Address', () => {
-      return cta0.fetch('gc0Address()', []).should.eventually.amorphEqual(gc0.address)
+    it('gcf0 accounts[1] should have correct gc0Address', () => {
+      return gcf0.fetch('gc0Address()', []).should.eventually.amorphEqual(gc0.address)
     })
-    it('cta0 accounts[1] should have correct gc0TokenId', () => {
-      return cta0.fetch('gc0TokenId()', []).should.eventually.amorphEqual(wholeTokens.a.id)
+    it('gcf0 accounts[1] should have correct gc0TokenId', () => {
+      return gcf0.fetch('gc0TokenId()', []).should.eventually.amorphEqual(wholeTokens.a.id)
     })
-    it('cta0 accounts[1] should have correct auctionAllowedAt', () => {
-      return cta0.fetch('auctionAllowedAt()', []).should.eventually.amorphEqual(fracturedTokens.a0.auctionAllowedAt)
+    it('gcf0 accounts[1] should have correct auctionAllowedAt', () => {
+      return gcf0.fetch('auctionAllowedAt()', []).should.eventually.amorphEqual(fracturedTokens.a0.auctionAllowedAt)
     })
-    it('cta0 accounts[1] should have balance of totalSupply', () => {
-      return cta0.fetch('balanceOf(address)', [accounts[1].address]).should.eventually.amorphEqual(fracturedTokens.a0.totalSupply)
+    it('gcf0 accounts[1] should have balance of totalSupply', () => {
+      return gcf0.fetch('balanceOf(address)', [accounts[1].address]).should.eventually.amorphEqual(fracturedTokens.a0.totalSupply)
     })
     it('should have correct code', () => {
-      return ultralightbeam.eth.getCode(cta0.address).should.eventually.amorphEqual(cta0Info.runcode)
+      return ultralightbeam.eth.getCode(gcf0.address).should.eventually.amorphEqual(gcf0Info.runcode)
     })
     it('should NOT have token ownership', () => {
-      return cta0.fetch('hasGc0TokenOwnership()', []).should.eventually.amorphEqual(amorphFalse)
+      return gcf0.fetch('hasGc0TokenOwnership()', []).should.eventually.amorphEqual(amorphFalse)
     })
-    it('account[1] should transfer tokenA to cta0A0', () => {
-      return gc0.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, cta0.address, wholeTokens.a.id], {
+    it('account[1] should transfer tokenA to gcf0A0', () => {
+      return gc0.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, gcf0.address, wholeTokens.a.id], {
         from: accounts[1]
       }).getConfirmation()
     })
     it('should have token ownership', () => {
-      return cta0.fetch('hasGc0TokenOwnership()', []).should.eventually.amorphEqual(amorphTrue)
+      return gcf0.fetch('hasGc0TokenOwnership()', []).should.eventually.amorphEqual(amorphTrue)
     })
-    testCta(1000, [0, 1000, 0, 0, 0], 1, 0)
+    testGcf(1000, [0, 1000, 0, 0, 0], 1, 0)
     testCurrency(0, [980000, 0, 0, 10000, 10000])
   })
   describe('approve currency', () => {
     it('accounts[3] should approve 1million', () => {
-      return currency.broadcast('approve(address,uint256)', [cta0.address, million], {
+      return currency.broadcast('approve(address,uint256)', [gcf0.address, million], {
         from: accounts[3]
       }).getConfirmation()
     })
     it('accounts[4] should approve 1million', () => {
-      return currency.broadcast('approve(address,uint256)', [cta0.address, million], {
+      return currency.broadcast('approve(address,uint256)', [gcf0.address, million], {
         from: accounts[4]
       }).getConfirmation()
     })
@@ -182,27 +182,27 @@ describe('cta', () => {
   })
   describe('first transfer', () => {
     it('account1 should transfer 500 aa to account2', () => {
-      return cta0.broadcast('transfer(address,uint256)', [accounts[2].address, fiveHundred], {
+      return gcf0.broadcast('transfer(address,uint256)', [accounts[2].address, fiveHundred], {
         from: accounts[1]
       }).getConfirmation()
     })
     it('account1 should have balance of 500', () => {
-      return cta0.fetch('balanceOf(address)', [accounts[1].address]).should.eventually.amorphEqual(fiveHundred)
+      return gcf0.fetch('balanceOf(address)', [accounts[1].address]).should.eventually.amorphEqual(fiveHundred)
     })
     it('account2 should have balance of 500', () => {
-      return cta0.fetch('balanceOf(address)', [accounts[2].address]).should.eventually.amorphEqual(fiveHundred)
+      return gcf0.fetch('balanceOf(address)', [accounts[2].address]).should.eventually.amorphEqual(fiveHundred)
     })
-    testCta(1000, [0, 500, 500, 0, 0], 1, 0)
+    testGcf(1000, [0, 500, 500, 0, 0], 1, 0)
     testCurrency(0, [980000, 0, 0, 10000, 10000])
   })
   describe('start auction', () => {
     it('account[0] should NOT be able to start auction', () => {
-      return cta0.broadcast('startAuction(uint256)', [one], {
+      return gcf0.broadcast('startAuction(uint256)', [one], {
         from: accounts[0]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[1] should NOT be able to start auction', () => {
-      return cta0.broadcast('startAuction(uint256)', [one], {
+      return gcf0.broadcast('startAuction(uint256)', [one], {
         from: accounts[1]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
@@ -227,128 +227,128 @@ describe('cta', () => {
       return ultralightbeam.blockPoller.blockPromise
     })
     it('account[1] should start auction', () => {
-      return cta0.broadcast('startAuction(uint256)', [two], {
+      return gcf0.broadcast('startAuction(uint256)', [two], {
         from: accounts[1]
       }).getConfirmation()
     })
     it('auctionStartedAt should be last block timestamp', () => {
       return ultralightbeam.getLatestBlock().then((block) => {
-        return cta0.fetch('auctionStartedAt()', []).should.eventually.amorphEqual(block.timestamp)
+        return gcf0.fetch('auctionStartedAt()', []).should.eventually.amorphEqual(block.timestamp)
       })
     })
     it('topBidder should be nullAddress', () => {
-      return cta0.fetch('topBidder()', []).should.eventually.amorphEqual(nullAddress)
+      return gcf0.fetch('topBidder()', []).should.eventually.amorphEqual(nullAddress)
     })
     it('topBid should be zero', () => {
-      return cta0.fetch('topBid()', []).should.eventually.amorphEqual(zero)
+      return gcf0.fetch('topBid()', []).should.eventually.amorphEqual(zero)
     })
     it('minBid should be one', () => {
-      return cta0.fetch('minBid()', []).should.eventually.amorphEqual(one)
+      return gcf0.fetch('minBid()', []).should.eventually.amorphEqual(one)
     })
-    testCta(1000, [0, 500, 500, 0, 0], 1, 0)
+    testGcf(1000, [0, 500, 500, 0, 0], 1, 0)
     testCurrency(0, [980000, 0, 0, 10000, 10000])
   })
   describe('second transfer', () => {
     it('account1 should transfer 100 aa to account2', () => {
-      return cta0.broadcast('transfer(address,uint256)', [accounts[2].address, hundred], {
+      return gcf0.broadcast('transfer(address,uint256)', [accounts[2].address, hundred], {
         from: accounts[1]
       }).getConfirmation()
     })
-    testCta(1000, [0, 400, 600, 0, 0], 1, 0)
+    testGcf(1000, [0, 400, 600, 0, 0], 1, 0)
     testCurrency(0, [980000, 0, 0, 10000, 10000])
   })
   describe('first bid', () => {
     it('account[3] should submit low bid and be rejected', () => {
-      return cta0.broadcast('submitBid(uint256)', [zero], {
+      return gcf0.broadcast('submitBid(uint256)', [zero], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[3] should submit min bid', () => {
-      return cta0.broadcast('submitBid(uint256)', [one], {
+      return gcf0.broadcast('submitBid(uint256)', [one], {
         from: accounts[3]
       }).getConfirmation()
     })
-    testCta(1000, [0, 400, 600, 0, 0], 2, 1)
+    testGcf(1000, [0, 400, 600, 0, 0], 2, 1)
     testCurrency(1000, [980000, 0, 0, 9000, 10000])
   })
   describe('second bid', () => {
     it('account[4] should NOT be able to min bid - 1', () => {
-      return cta0.broadcast('submitBid(uint256)', [one], {
+      return gcf0.broadcast('submitBid(uint256)', [one], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[4] should be able to min bid', () => {
-      return cta0.broadcast('submitBid(uint256)', [two], {
+      return gcf0.broadcast('submitBid(uint256)', [two], {
         from: accounts[4]
       }).getConfirmation()
     })
-    testCta(1000, [0, 400, 600, 0, 0], 3, 2)
+    testGcf(1000, [0, 400, 600, 0, 0], 3, 2)
     testCurrency(2000, [980000, 0, 0, 10000, 8000])
   })
   describe('third bid', () => {
     it('account[3] should NOT be able to min bid - 1', () => {
-      return cta0.broadcast('submitBid(uint256)', [two], {
+      return gcf0.broadcast('submitBid(uint256)', [two], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[3] should be able to min bid', () => {
-      return cta0.broadcast('submitBid(uint256)', [three], {
+      return gcf0.broadcast('submitBid(uint256)', [three], {
         from: accounts[3]
       }).getConfirmation()
     })
-    testCta(1000, [0, 400, 600, 0, 0], 5, 3)
+    testGcf(1000, [0, 400, 600, 0, 0], 5, 3)
     testCurrency(3000, [980000, 0, 0, 7000, 10000])
   })
   describe('fourth bid', () => {
     it('account[4] should NOT be able to min bid - 1', () => {
-      return cta0.broadcast('submitBid(uint256)', [four], {
+      return gcf0.broadcast('submitBid(uint256)', [four], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[4] should be able to min bid', () => {
-      return cta0.broadcast('submitBid(uint256)', [five], {
+      return gcf0.broadcast('submitBid(uint256)', [five], {
         from: accounts[4]
       }).getConfirmation()
     })
-    testCta(1000, [0, 400, 600, 0, 0], 8, 5)
+    testGcf(1000, [0, 400, 600, 0, 0], 8, 5)
     testCurrency(5000, [980000, 0, 0, 10000, 5000])
   })
   describe('fifth bid', () => {
     it('account[3] should NOT be able to min bid - 1', () => {
-      return cta0.broadcast('submitBid(uint256)', [seven], {
+      return gcf0.broadcast('submitBid(uint256)', [seven], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[3] should be able to min bid', () => {
-      return cta0.broadcast('submitBid(uint256)', [eight], {
+      return gcf0.broadcast('submitBid(uint256)', [eight], {
         from: accounts[3]
       }).getConfirmation()
     })
-    testCta(1000, [0, 400, 600, 0, 0], 12, 8)
+    testGcf(1000, [0, 400, 600, 0, 0], 12, 8)
     testCurrency(8000, [980000, 0, 0, 2000, 10000])
   })
   describe('sixth bid', () => {
     it('account[4] should NOT be able to min bid - 1', () => {
-      return cta0.broadcast('submitBid(uint256)', [eleven], {
+      return gcf0.broadcast('submitBid(uint256)', [eleven], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[4] should be NOT able to min bid (liquidity)', () => {
-      return cta0.broadcast('submitBid(uint256)', [twelve], {
+      return gcf0.broadcast('submitBid(uint256)', [twelve], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
-    testCta(1000, [0, 400, 600, 0, 0], 12, 8)
+    testGcf(1000, [0, 400, 600, 0, 0], 12, 8)
     testCurrency(8000, [980000, 0, 0, 2000, 10000])
   })
   describe('complete auction', () => {
     it('account[0] should NOT be able to completeAuction', () => {
-      return cta0.broadcast('completeAuction()', [], {
+      return gcf0.broadcast('completeAuction()', [], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[4] should NOT be able to completeAuction', () => {
-      return cta0.broadcast('completeAuction()', [], {
+      return gcf0.broadcast('completeAuction()', [], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
@@ -372,29 +372,29 @@ describe('cta', () => {
       return ultralightbeam.blockPoller.blockPromise
     })
     it('account[0] should be able to completeAuction', () => {
-      return cta0.broadcast('completeAuction()', [], {
+      return gcf0.broadcast('completeAuction()', [], {
         from: accounts[0]
       }).getConfirmation()
     })
-    testCta(1000, [0, 400, 600, 0, 0], 12, 8)
+    testGcf(1000, [0, 400, 600, 0, 0], 12, 8)
     testCurrency(8000, [980000, 0, 0, 2000, 10000])
   })
   describe('first payout', () => {
     it('account[1] should be able to payout', () => {
-      return cta0.broadcast('payout()', [], {
+      return gcf0.broadcast('payout()', [], {
         from: accounts[1]
       }).getConfirmation()
     })
-    testCta(600, [0, 0, 600, 0, 0], 12, 8)
+    testGcf(600, [0, 0, 600, 0, 0], 12, 8)
     testCurrency(4800, [980000, 3200, 0, 2000, 10000])
   })
   describe('second payout', () => {
     it('account[2] should be able to payout', () => {
-      return cta0.broadcast('payout()', [], {
+      return gcf0.broadcast('payout()', [], {
         from: accounts[2]
       }).getConfirmation()
     })
-    testCta(0, [0, 0, 0, 0, 0], 12, 8)
+    testGcf(0, [0, 0, 0, 0, 0], 12, 8)
     testCurrency(0, [980000, 3200, 4800, 2000, 10000])
   })
 })
