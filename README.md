@@ -1,5 +1,5 @@
-# undefined
-Author: undefined
+# GCF0: NFT Token Fracturizer
+Author: GuildCrypt
 
 
 | Name | Type |
@@ -17,7 +17,6 @@ Author: undefined
 | [`decreaseAllowance(address,uint256)`](#decreaseAllowance(address,uint256)) | function (non-constant) |
 | [`gc0Address()`](#gc0Address()) | function (constant) |
 | [`gc0TokenId()`](#gc0TokenId()) | function (constant) |
-| [`hasGc0TokenOwnership()`](#hasGc0TokenOwnership()) | function (constant) |
 | [`increaseAllowance(address,uint256)`](#increaseAllowance(address,uint256)) | function (non-constant) |
 | [`isInSunsetBufferPeriod()`](#isInSunsetBufferPeriod()) | function (constant) |
 | [`minAuctionCompleteWait()`](#minAuctionCompleteWait()) | function (constant) |
@@ -138,12 +137,6 @@ Author: undefined
 |---|---|---|---|
 | `0` | `uint256` |  |  |
 ---
-#### <a name="hasGc0TokenOwnership()"></a> `hasGc0TokenOwnership()`
-##### Outputs
-|  | Type | Name | Description |
-|---|---|---|---|
-| `0` | `bool` |  |  |
----
 #### <a name="increaseAllowance(address,uint256)"></a> `increaseAllowance(address,uint256)`
 ##### Inputs
 |  | Type | Name | Description |
@@ -191,7 +184,7 @@ Author: undefined
 ##### Inputs
 |  | Type | Name | Description |
 |---|---|---|---|
-| `0` | `uint256` | `_bid` |  |
+| `0` | `uint256` | `_bid` | Amount in `currency` to bid |
 ---
 #### <a name="sunsetBuffer()"></a> `sunsetBuffer()`
 ##### Outputs

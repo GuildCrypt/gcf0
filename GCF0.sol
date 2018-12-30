@@ -5,6 +5,8 @@ import "ERC721.sol";
 import "ERC20.sol";
 import "math/SafeMath.sol";
 
+/// @title GCF0: NFT Token Fracturizer
+/// @author GuildCrypt
 contract GCF0 is ERC20 {
 
   using SafeMath for uint256;
@@ -28,6 +30,15 @@ contract GCF0 is ERC20 {
   address public topBidder;
   uint256 public topBidSubmittedAt;
 
+
+  /// @param _currencyAddress The address of the ERC20 contract used as a currency during auctioning
+  /// @param _gc0Address The address of the GC0 contract that has the token
+  /// @param _gc0TokenId The id of the token on the GC0 contract
+  /// @param _totalSupply Number of fractured tokens
+  /// @param _auctionAllowedAt Time after which anyone can start an auction
+  /// @param _sunsetBuffer Amount of time before a sunset period ends in which anyone can start an auction
+  /// @param _minAuctionCompleteWait Amount of time between the last bid and when an auction can be completed
+  /// @param _minBidDeltaMilliperun Minimum difference between a bid and the next bid. Expressed in 1/1000ths (.1%).
   constructor(
     address _currencyAddress,
     address _gc0Address,
@@ -50,18 +61,17 @@ contract GCF0 is ERC20 {
     _mint(msg.sender, _totalSupply);
   }
 
-  function hasGc0TokenOwnership() public view returns(bool) {
-    return GC0(gc0Address).ownerOf(gc0TokenId) == address(this);
-  }
-
+  /// @dev Get `sunsetInitiatedAt` of the `GC0` token
   function sunsetInitiatedAt() public view returns(uint256) {
     return GC0(gc0Address).sunsetInitiatedAt(gc0TokenId);
   }
 
+  /// @dev Determine if in sunset buffer period (and thus anyone can start an auction)
   function isInSunsetBufferPeriod() public view returns(bool) {
     return (sunsetInitiatedAt() + sunsetLength - sunsetBuffer) > now;
   }
 
+  /// @dev Start an auction
   function startAuction(uint256) public {
     require(auctionStartedAt == 0);
     require(
@@ -71,6 +81,8 @@ contract GCF0 is ERC20 {
     auctionStartedAt = now;
   }
 
+  /// @dev Submit a bid. Must have sufficient funds approved in `currency` contract
+  /// @param _bid Amount in `currency` to bid
   function submitBid(uint256 _bid) public {
     require(auctionStartedAt > 0);
     require(auctionCompletedAt == 0);
@@ -99,6 +111,7 @@ contract GCF0 is ERC20 {
     );
   }
 
+  /// @dev Complete auction
   function completeAuction() public {
     require(auctionCompletedAt == 0);
     require(topBid > 0);
@@ -106,6 +119,7 @@ contract GCF0 is ERC20 {
     auctionCompletedAt = now;
   }
 
+  /// @dev Payout `currency` after auction completed
   function payout() public {
     require(balanceOf(msg.sender) > 0);
     require(auctionCompletedAt > 0);
