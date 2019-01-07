@@ -1,4 +1,4 @@
-# GCF0: NFT Token Fracturizer
+# RiftPact: NFT Token Fracturizer
 Author: GuildCrypt
 
 

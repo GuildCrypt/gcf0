@@ -5,9 +5,9 @@ import "ERC721.sol";
 import "ERC20.sol";
 import "math/SafeMath.sol";
 
-/// @title GCF0: NFT Token Fracturizer
+/// @title RiftPact: OathForge Token Fracturizer
 /// @author GuildCrypt
-contract GCF0 is ERC20 {
+contract RiftPact is ERC20 {
 
   using SafeMath for uint256;
 

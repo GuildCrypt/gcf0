@@ -1,5 +1,5 @@
 const ultralightbeam = require('./ultralightbeam')
-const gcf0Info = require('../')
+const riftPactInfo = require('../')
 const oathForgeInfo = require('./oathForgeInfo')
 const currencyInfo = require('./currencyInfo')
 const Amorph = require('amorph')
@@ -10,13 +10,13 @@ const getRandomAmorph = require('ultralightbeam/lib/getRandomAmorph')
 const BluebirdStub = require('bluebird-stub')
 const testGcf = require('./testGcf')
 const testCurrency = require('./testCurrency')
-const gcf0Stub = require('./gcf0Stub')
+const riftPactStub = require('./riftPactStub')
 const currencyStub = require('./currencyStub')
 const amorphAscii = require('amorph-ascii')
 const chai = require('chai')
 const amorphBoolean = require('amorph-boolean')
 
-describe('gcf0', () => {
+describe('riftPact', () => {
 
   const name = Amorph.from(amorphAscii, 'GuildCrypt 0')
   const symbol = Amorph.from(amorphAscii, 'GC:0')
@@ -78,7 +78,7 @@ describe('gcf0', () => {
 
 
   let oathForge
-  let gcf0
+  let riftPact
   let currency
 
   describe('setup oathForge', () => {
@@ -120,9 +120,9 @@ describe('gcf0', () => {
       }).getConfirmation()
     })
   })
-  describe('setup gcf0', () => {
-    it('should deploy gcf0', () => {
-      return ultralightbeam.solDeploy(gcf0Info.code, gcf0Info.abi, [
+  describe('setup riftPact', () => {
+    it('should deploy riftPact', () => {
+      return ultralightbeam.solDeploy(riftPactInfo.code, riftPactInfo.abi, [
         currency.address,
         oathForge.address,
         wholeTokens.a.id,
@@ -133,48 +133,48 @@ describe('gcf0', () => {
         fracturedTokens.a0.minBidDeltaMilliperun
       ], {
         from: accounts[1]
-      }).then((_gcf0) => {
-        gcf0 = _gcf0
-        gcf0Stub.resolve(gcf0)
+      }).then((_riftPact) => {
+        riftPact = _riftPact
+        riftPactStub.resolve(riftPact)
       })
     })
-    it('gcf0 accounts[1] should have correct oathForgeAddress', () => {
-      return gcf0.fetch('oathForgeAddress()', []).should.eventually.amorphEqual(oathForge.address)
+    it('riftPact accounts[1] should have correct oathForgeAddress', () => {
+      return riftPact.fetch('oathForgeAddress()', []).should.eventually.amorphEqual(oathForge.address)
     })
-    it('gcf0 accounts[1] should have correct oathForgeTokenId', () => {
-      return gcf0.fetch('oathForgeTokenId()', []).should.eventually.amorphEqual(wholeTokens.a.id)
+    it('riftPact accounts[1] should have correct oathForgeTokenId', () => {
+      return riftPact.fetch('oathForgeTokenId()', []).should.eventually.amorphEqual(wholeTokens.a.id)
     })
-    it('gcf0 accounts[1] should have correct auctionAllowedAt', () => {
-      return gcf0.fetch('auctionAllowedAt()', []).should.eventually.amorphEqual(fracturedTokens.a0.auctionAllowedAt)
+    it('riftPact accounts[1] should have correct auctionAllowedAt', () => {
+      return riftPact.fetch('auctionAllowedAt()', []).should.eventually.amorphEqual(fracturedTokens.a0.auctionAllowedAt)
     })
-    it('gcf0 accounts[1] should have balance of totalSupply', () => {
-      return gcf0.fetch('balanceOf(address)', [accounts[1].address]).should.eventually.amorphEqual(fracturedTokens.a0.totalSupply)
+    it('riftPact accounts[1] should have balance of totalSupply', () => {
+      return riftPact.fetch('balanceOf(address)', [accounts[1].address]).should.eventually.amorphEqual(fracturedTokens.a0.totalSupply)
     })
     it('should have correct code', () => {
-      return ultralightbeam.eth.getCode(gcf0.address).should.eventually.amorphEqual(gcf0Info.runcode)
+      return ultralightbeam.eth.getCode(riftPact.address).should.eventually.amorphEqual(riftPactInfo.runcode)
     })
     it('account[1] should have othforge token ownership', () => {
       return oathForge.fetch('ownerOf(uint256)', [wholeTokens.a.id]).should.eventually.amorphEqual(accounts[1].address)
     })
-    it('account[1] should transfer tokenA to gcf0A0', () => {
-      return oathForge.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, gcf0.address, wholeTokens.a.id], {
+    it('account[1] should transfer tokenA to riftPactA0', () => {
+      return oathForge.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, riftPact.address, wholeTokens.a.id], {
         from: accounts[1]
       }).getConfirmation()
     })
-    it('gcf0 should have token ownership', () => {
-      return oathForge.fetch('ownerOf(uint256)', [wholeTokens.a.id]).should.eventually.amorphEqual(gcf0.address)
+    it('riftPact should have token ownership', () => {
+      return oathForge.fetch('ownerOf(uint256)', [wholeTokens.a.id]).should.eventually.amorphEqual(riftPact.address)
     })
     testGcf(1000, [0, 1000, 0, 0, 0], 1, 0)
     testCurrency(0, [980000, 0, 0, 10000, 10000])
   })
   describe('approve currency', () => {
     it('accounts[3] should approve 1million', () => {
-      return currency.broadcast('approve(address,uint256)', [gcf0.address, million], {
+      return currency.broadcast('approve(address,uint256)', [riftPact.address, million], {
         from: accounts[3]
       }).getConfirmation()
     })
     it('accounts[4] should approve 1million', () => {
-      return currency.broadcast('approve(address,uint256)', [gcf0.address, million], {
+      return currency.broadcast('approve(address,uint256)', [riftPact.address, million], {
         from: accounts[4]
       }).getConfirmation()
     })
@@ -182,27 +182,27 @@ describe('gcf0', () => {
   })
   describe('first transfer', () => {
     it('account1 should transfer 500 aa to account2', () => {
-      return gcf0.broadcast('transfer(address,uint256)', [accounts[2].address, fiveHundred], {
+      return riftPact.broadcast('transfer(address,uint256)', [accounts[2].address, fiveHundred], {
         from: accounts[1]
       }).getConfirmation()
     })
     it('account1 should have balance of 500', () => {
-      return gcf0.fetch('balanceOf(address)', [accounts[1].address]).should.eventually.amorphEqual(fiveHundred)
+      return riftPact.fetch('balanceOf(address)', [accounts[1].address]).should.eventually.amorphEqual(fiveHundred)
     })
     it('account2 should have balance of 500', () => {
-      return gcf0.fetch('balanceOf(address)', [accounts[2].address]).should.eventually.amorphEqual(fiveHundred)
+      return riftPact.fetch('balanceOf(address)', [accounts[2].address]).should.eventually.amorphEqual(fiveHundred)
     })
     testGcf(1000, [0, 500, 500, 0, 0], 1, 0)
     testCurrency(0, [980000, 0, 0, 10000, 10000])
   })
   describe('start auction', () => {
     it('account[0] should NOT be able to start auction', () => {
-      return gcf0.broadcast('startAuction(uint256)', [one], {
+      return riftPact.broadcast('startAuction(uint256)', [one], {
         from: accounts[0]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[1] should NOT be able to start auction', () => {
-      return gcf0.broadcast('startAuction(uint256)', [one], {
+      return riftPact.broadcast('startAuction(uint256)', [one], {
         from: accounts[1]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
@@ -227,30 +227,30 @@ describe('gcf0', () => {
       return ultralightbeam.blockPoller.blockPromise
     })
     it('account[1] should start auction', () => {
-      return gcf0.broadcast('startAuction(uint256)', [two], {
+      return riftPact.broadcast('startAuction(uint256)', [two], {
         from: accounts[1]
       }).getConfirmation()
     })
     it('auctionStartedAt should be last block timestamp', () => {
       return ultralightbeam.getLatestBlock().then((block) => {
-        return gcf0.fetch('auctionStartedAt()', []).should.eventually.amorphEqual(block.timestamp)
+        return riftPact.fetch('auctionStartedAt()', []).should.eventually.amorphEqual(block.timestamp)
       })
     })
     it('topBidder should be nullAddress', () => {
-      return gcf0.fetch('topBidder()', []).should.eventually.amorphEqual(nullAddress)
+      return riftPact.fetch('topBidder()', []).should.eventually.amorphEqual(nullAddress)
     })
     it('topBid should be zero', () => {
-      return gcf0.fetch('topBid()', []).should.eventually.amorphEqual(zero)
+      return riftPact.fetch('topBid()', []).should.eventually.amorphEqual(zero)
     })
     it('minBid should be one', () => {
-      return gcf0.fetch('minBid()', []).should.eventually.amorphEqual(one)
+      return riftPact.fetch('minBid()', []).should.eventually.amorphEqual(one)
     })
     testGcf(1000, [0, 500, 500, 0, 0], 1, 0)
     testCurrency(0, [980000, 0, 0, 10000, 10000])
   })
   describe('second transfer', () => {
     it('account1 should transfer 100 aa to account2', () => {
-      return gcf0.broadcast('transfer(address,uint256)', [accounts[2].address, hundred], {
+      return riftPact.broadcast('transfer(address,uint256)', [accounts[2].address, hundred], {
         from: accounts[1]
       }).getConfirmation()
     })
@@ -259,12 +259,12 @@ describe('gcf0', () => {
   })
   describe('first bid', () => {
     it('account[3] should submit low bid and be rejected', () => {
-      return gcf0.broadcast('submitBid(uint256)', [zero], {
+      return riftPact.broadcast('submitBid(uint256)', [zero], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[3] should submit min bid', () => {
-      return gcf0.broadcast('submitBid(uint256)', [one], {
+      return riftPact.broadcast('submitBid(uint256)', [one], {
         from: accounts[3]
       }).getConfirmation()
     })
@@ -273,12 +273,12 @@ describe('gcf0', () => {
   })
   describe('second bid', () => {
     it('account[4] should NOT be able to min bid - 1', () => {
-      return gcf0.broadcast('submitBid(uint256)', [one], {
+      return riftPact.broadcast('submitBid(uint256)', [one], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[4] should be able to min bid', () => {
-      return gcf0.broadcast('submitBid(uint256)', [two], {
+      return riftPact.broadcast('submitBid(uint256)', [two], {
         from: accounts[4]
       }).getConfirmation()
     })
@@ -287,12 +287,12 @@ describe('gcf0', () => {
   })
   describe('third bid', () => {
     it('account[3] should NOT be able to min bid - 1', () => {
-      return gcf0.broadcast('submitBid(uint256)', [two], {
+      return riftPact.broadcast('submitBid(uint256)', [two], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[3] should be able to min bid', () => {
-      return gcf0.broadcast('submitBid(uint256)', [three], {
+      return riftPact.broadcast('submitBid(uint256)', [three], {
         from: accounts[3]
       }).getConfirmation()
     })
@@ -301,12 +301,12 @@ describe('gcf0', () => {
   })
   describe('fourth bid', () => {
     it('account[4] should NOT be able to min bid - 1', () => {
-      return gcf0.broadcast('submitBid(uint256)', [four], {
+      return riftPact.broadcast('submitBid(uint256)', [four], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[4] should be able to min bid', () => {
-      return gcf0.broadcast('submitBid(uint256)', [five], {
+      return riftPact.broadcast('submitBid(uint256)', [five], {
         from: accounts[4]
       }).getConfirmation()
     })
@@ -315,12 +315,12 @@ describe('gcf0', () => {
   })
   describe('fifth bid', () => {
     it('account[3] should NOT be able to min bid - 1', () => {
-      return gcf0.broadcast('submitBid(uint256)', [seven], {
+      return riftPact.broadcast('submitBid(uint256)', [seven], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[3] should be able to min bid', () => {
-      return gcf0.broadcast('submitBid(uint256)', [eight], {
+      return riftPact.broadcast('submitBid(uint256)', [eight], {
         from: accounts[3]
       }).getConfirmation()
     })
@@ -329,12 +329,12 @@ describe('gcf0', () => {
   })
   describe('sixth bid', () => {
     it('account[4] should NOT be able to min bid - 1', () => {
-      return gcf0.broadcast('submitBid(uint256)', [eleven], {
+      return riftPact.broadcast('submitBid(uint256)', [eleven], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[4] should be NOT able to min bid (liquidity)', () => {
-      return gcf0.broadcast('submitBid(uint256)', [twelve], {
+      return riftPact.broadcast('submitBid(uint256)', [twelve], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
@@ -343,12 +343,12 @@ describe('gcf0', () => {
   })
   describe('complete auction', () => {
     it('account[0] should NOT be able to completeAuction', () => {
-      return gcf0.broadcast('completeAuction()', [], {
+      return riftPact.broadcast('completeAuction()', [], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     it('account[4] should NOT be able to completeAuction', () => {
-      return gcf0.broadcast('completeAuction()', [], {
+      return riftPact.broadcast('completeAuction()', [], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
@@ -372,7 +372,7 @@ describe('gcf0', () => {
       return ultralightbeam.blockPoller.blockPromise
     })
     it('account[0] should be able to completeAuction', () => {
-      return gcf0.broadcast('completeAuction()', [], {
+      return riftPact.broadcast('completeAuction()', [], {
         from: accounts[0]
       }).getConfirmation()
     })
@@ -381,7 +381,7 @@ describe('gcf0', () => {
   })
   describe('first payout', () => {
     it('account[1] should be able to payout', () => {
-      return gcf0.broadcast('payout()', [], {
+      return riftPact.broadcast('payout()', [], {
         from: accounts[1]
       }).getConfirmation()
     })
@@ -390,7 +390,7 @@ describe('gcf0', () => {
   })
   describe('second payout', () => {
     it('account[2] should be able to payout', () => {
-      return gcf0.broadcast('payout()', [], {
+      return riftPact.broadcast('payout()', [], {
         from: accounts[2]
       }).getConfirmation()
     })

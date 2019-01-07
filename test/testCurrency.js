@@ -1,6 +1,6 @@
 const accounts = require('./accounts')
 const currencyStub = require('./currencyStub')
-const gcf0Stub = require('./gcf0Stub')
+const riftPactStub = require('./riftPactStub')
 const Amorph = require('amorph')
 const amorphNumber = require('amorph-number')
 const amorphBoolean = require('amorph-boolean')
@@ -8,7 +8,7 @@ const amorphBoolean = require('amorph-boolean')
 module.exports = function testCta(ctaBalance, balances) {
   describe('currency state', () => {
     it(`cta0 should have balance of ${ctaBalance}`, () => {
-      return gcf0Stub.promise.then((cta0) => {
+      return riftPactStub.promise.then((cta0) => {
         return currencyStub.promise.then((currency) => {
           return currency.fetch('balanceOf(address)', [cta0.address]).should.eventually.amorphEqual(Amorph.from(amorphNumber.unsigned, ctaBalance))
         })
