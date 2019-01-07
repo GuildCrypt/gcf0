@@ -5,7 +5,7 @@ const amorphNumber = require('amorph-number')
 const amorphBoolean = require('amorph-boolean')
 
 module.exports = function testGcf(totalSupply, balances, minBid, topBid) {
-  describe('gcf state', () => {
+  describe('riftPact state', () => {
     it(`should have totalSupply of ${totalSupply}`, () => {
       return riftPactStub.promise.then((riftPact) => {
         return riftPact.fetch('totalSupply()', []).should.eventually.amorphEqual(Amorph.from(amorphNumber.unsigned, totalSupply))

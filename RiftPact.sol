@@ -11,119 +11,140 @@ contract RiftPact is ERC20 {
 
   using SafeMath for uint256;
 
-  address public currencyAddress;
-  address public oathForgeAddress;
-  uint256 public oathForgeTokenId;
-  uint256 public auctionAllowedAt;
-  uint256 private _sunsetInitiatedAt;
+  address private _daiAddress; // TODO: Hard code; Left variable for testability
+  address private _oathForgeAddress; // TODO: Hard code; Left variable for testability
+  uint256 private _minAuctionCompleteWait = 604800; // 7 days in seconds
 
-  uint256 public sunsetLength;
-  uint256 public sunsetBuffer;
-  uint256 public minAuctionCompleteWait;
+  uint256 private _oathForgeTokenId;
+  uint256 private _auctionAllowedAt;
 
-  uint256 public auctionStartedAt;
-  uint256 public auctionCompletedAt;
-  uint256 public minBid = 1;
-  uint256 public minBidDeltaMilliperun;
+  uint256 private _auctionStartedAt;
+  uint256 private _auctionCompletedAt;
+  uint256 private _minBidDeltaPerunNumerator = 5;
+  uint256 private _minBidDeltaPerunDenominator = 1000;
 
-  uint256 public topBid;
-  address public topBidder;
-  uint256 public topBidSubmittedAt;
+  uint256 private _minBid = 1;
+  uint256 private _topBid;
+  address private _topBidder;
+  uint256 private _topBidSubmittedAt;
 
-
-  /// @param _currencyAddress The address of the ERC20 contract used as a currency during auctioning
-  /// @param _oathForgeAddress The address of the OathForge contract that has the token
-  /// @param _oathForgeTokenId The id of the token on the OathForge contract
-  /// @param _totalSupply Number of fractured tokens
-  /// @param _auctionAllowedAt Time after which anyone can start an auction
-  /// @param _sunsetBuffer Amount of time before a sunset period ends in which anyone can start an auction
-  /// @param _minAuctionCompleteWait Amount of time between the last bid and when an auction can be completed
-  /// @param _minBidDeltaMilliperun Minimum difference between a bid and the next bid. Expressed in 1/1000ths (.1%).
+  /// @param __oathForgeTokenId The id of the token on the OathForge contract
+  /// @param __auctionAllowedAt The timestamp at which anyone can start an auction
+  /// @param __daiAddress The address of the DAI contract. **TODO: Hard code. Left Variable for testability.**
+  /// @param __oathForgeAddress The address of the OathForge contract **TODO: Hard code. Left Variable for testability.**
   constructor(
-    address _currencyAddress,
-    address _oathForgeAddress,
-    uint256 _oathForgeTokenId,
-    uint256 _totalSupply,
-    uint256 _auctionAllowedAt,
-    uint256 _sunsetBuffer,
-    uint256 _minAuctionCompleteWait,
-    uint256 _minBidDeltaMilliperun
+    uint256 __oathForgeTokenId,
+    uint256 __auctionAllowedAt,
+    address __daiAddress, // TODO: Hard code; Left variable for testability
+    address __oathForgeAddress // TODO: Hard code; Left variable for testability
   ) public {
-    currencyAddress = _currencyAddress;
-    oathForgeAddress = _oathForgeAddress;
-    oathForgeTokenId = _oathForgeTokenId;
-    auctionAllowedAt = _auctionAllowedAt;
-    sunsetLength = OathForge(_oathForgeAddress).sunsetLength(_oathForgeTokenId);
-    sunsetBuffer = _sunsetBuffer;
-    minAuctionCompleteWait = _minAuctionCompleteWait;
-    minBidDeltaMilliperun = _minBidDeltaMilliperun;
+    _oathForgeTokenId = __oathForgeTokenId;
+    _auctionAllowedAt = __auctionAllowedAt;
 
-    _mint(msg.sender, _totalSupply);
+    _daiAddress = __daiAddress; // TODO: Hard code; Left variable for testability
+    _oathForgeAddress = __oathForgeAddress; // TODO: Hard code; Left variable for testability
+
+    _mint(msg.sender, 10000);
   }
 
-  /// @dev Get `sunsetInitiatedAt` of the `OathForge` token
-  function sunsetInitiatedAt() public view returns(uint256) {
-    return OathForge(oathForgeAddress).sunsetInitiatedAt(oathForgeTokenId);
+  /// @dev Returns the DAI contract address.
+  function daiAddress() external view returns(address) {
+    return _daiAddress;
   }
 
-  /// @dev Determine if in sunset buffer period (and thus anyone can start an auction)
-  function isInSunsetBufferPeriod() public view returns(bool) {
-    return (sunsetInitiatedAt() + sunsetLength - sunsetBuffer) > now;
+  /// @dev Returns the OathForge contract address.
+  function oathForgeAddress() external view returns(address) {
+    return _oathForgeAddress;
+  }
+
+  /// @dev Returns the OathForge token id. **Does not imply RiftPact has ownership over token.**
+  function oathForgeTokenId() external view returns(uint256) {
+    return _oathForgeTokenId;
+  }
+
+  /// @dev Returns the timestamp at which anyone can start an auction by calling [`startAuction()`](#startAuction())
+  function auctionAllowedAt() external view returns(uint256) {
+    return _auctionAllowedAt;
+  }
+
+  /// @dev Returns the minimum bid in attoDAI (10^-18 DAI).
+  function minBid() external view returns(uint256) {
+    return _minBid;
+  }
+
+  /// @dev Returns the timestamp at which an auction was started or 0 if no auction has been started
+  function auctionStartedAt() external view returns(uint256) {
+    return _auctionStartedAt;
+  }
+
+  /// @dev Returns the timestamp at which an auction was completed or 0 if no auction has been completed
+  function auctionCompletedAt() external view returns(uint256) {
+    return _auctionCompletedAt;
+  }
+
+  /// @dev Returns the top bid or 0 if no bids have been placed
+  function topBid() external view returns(uint256) {
+    return _topBid;
+  }
+
+  /// @dev Returns the top bidder or `address(0)` if no bids have been placed
+  function topBidder() external view returns(address) {
+    return _topBidder;
   }
 
   /// @dev Start an auction
-  function startAuction(uint256) public {
-    require(auctionStartedAt == 0);
+  function startAuction() external {
+    require(_auctionStartedAt == 0);
     require(
-      auctionAllowedAt < now
-      || isInSunsetBufferPeriod()
+      (now >= _auctionAllowedAt)
+      || (OathForge(_oathForgeAddress).sunsetInitiatedAt(_oathForgeTokenId) > 0)
     );
-    auctionStartedAt = now;
+    _auctionStartedAt = now;
   }
 
-  /// @dev Submit a bid. Must have sufficient funds approved in `currency` contract
-  /// @param _bid Amount in `currency` to bid
-  function submitBid(uint256 _bid) public {
-    require(auctionStartedAt > 0);
-    require(auctionCompletedAt == 0);
-    require (_bid >= minBid);
-    if (topBidder != address(0)) {
-      require(ERC20(currencyAddress).transfer(topBidder, topBid * totalSupply()));
+  /// @dev Submit a bid. Must have sufficient funds approved in `DAI` contract (bid * totalSupply).
+  /// @param bid Bid in attoDAI (10^-18 DAI)
+  function submitBid(uint256 bid) external {
+    require(_auctionStartedAt > 0);
+    require(_auctionCompletedAt == 0);
+    require (bid >= _minBid);
+    if (_topBidder != address(0)) {
+      require(ERC20(_daiAddress).transfer(_topBidder, _topBid * totalSupply()));
     }
-    require(ERC20(currencyAddress).transferFrom(msg.sender, address(this), _bid * totalSupply()));
-    topBid = _bid;
-    topBidder = msg.sender;
-    topBidSubmittedAt = now;
+    require(ERC20(_daiAddress).transferFrom(msg.sender, address(this), bid * totalSupply()));
+    _topBid = bid;
+    _topBidder = msg.sender;
+    _topBidSubmittedAt = now;
 
-    uint256 _minBidDeltaNumerator = _bid * minBidDeltaMilliperun;
-    uint256 _minBidRoundUp = 0;
+    uint256 minBidDeltaNumerator = bid * _minBidDeltaPerunNumerator;
+    uint256 minBidRoundUp = 0;
 
-    if(_minBidDeltaNumerator % 1000 > 0) {
-      _minBidRoundUp = 1;
+    if(minBidDeltaNumerator % _minBidDeltaPerunDenominator > 0) {
+      minBidRoundUp = 1;
     }
 
-    minBid =  (
-      _bid + _minBidRoundUp + (
+    _minBid =  (
+      bid + minBidRoundUp + (
       (
-        _minBidDeltaNumerator / 1000
+        minBidDeltaNumerator / _minBidDeltaPerunDenominator
       )
      )
     );
   }
 
   /// @dev Complete auction
-  function completeAuction() public {
-    require(auctionCompletedAt == 0);
-    require(topBid > 0);
-    require((topBidSubmittedAt + minAuctionCompleteWait) < now);
-    auctionCompletedAt = now;
+  function completeAuction() external {
+    require(_auctionCompletedAt == 0);
+    require(_topBid > 0);
+    require((_topBidSubmittedAt + _minAuctionCompleteWait) < now);
+    _auctionCompletedAt = now;
   }
 
-  /// @dev Payout `currency` after auction completed
-  function payout() public {
+  /// @dev Payout `dai` after auction completed
+  function payout() external {
     require(balanceOf(msg.sender) > 0);
-    require(auctionCompletedAt > 0);
-    require(ERC20(currencyAddress).transfer(msg.sender, balanceOf(msg.sender) * topBid));
+    require(_auctionCompletedAt > 0);
+    require(ERC20(_daiAddress).transfer(msg.sender, balanceOf(msg.sender) * _topBid));
     _burn(msg.sender, balanceOf(msg.sender));
   }
 
