@@ -1,5 +1,5 @@
 {
-  "name": "nft-fracturization-mvta",
+  "name": "riftpact",
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "guildcrypt-gc0": "^1.0.0",
+    "oathforge": "^2.0.0",
     "openzeppelin-solidity": "^2.0.0",
     "ultralightbeam": "^5.1.10"
   },

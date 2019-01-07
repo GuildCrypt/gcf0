@@ -1,6 +1,6 @@
 pragma solidity ^0.4.25;
 
-import "GC0.sol";
+import "OathForge.sol";
 import "ERC721.sol";
 import "ERC20.sol";
 import "math/SafeMath.sol";
@@ -12,8 +12,8 @@ contract GCF0 is ERC20 {
   using SafeMath for uint256;
 
   address public currencyAddress;
-  address public gc0Address;
-  uint256 public gc0TokenId;
+  address public oathForgeAddress;
+  uint256 public oathForgeTokenId;
   uint256 public auctionAllowedAt;
   uint256 private _sunsetInitiatedAt;
 
@@ -32,8 +32,8 @@ contract GCF0 is ERC20 {
 
 
   /// @param _currencyAddress The address of the ERC20 contract used as a currency during auctioning
-  /// @param _gc0Address The address of the GC0 contract that has the token
-  /// @param _gc0TokenId The id of the token on the GC0 contract
+  /// @param _oathForgeAddress The address of the OathForge contract that has the token
+  /// @param _oathForgeTokenId The id of the token on the OathForge contract
   /// @param _totalSupply Number of fractured tokens
   /// @param _auctionAllowedAt Time after which anyone can start an auction
   /// @param _sunsetBuffer Amount of time before a sunset period ends in which anyone can start an auction
@@ -41,8 +41,8 @@ contract GCF0 is ERC20 {
   /// @param _minBidDeltaMilliperun Minimum difference between a bid and the next bid. Expressed in 1/1000ths (.1%).
   constructor(
     address _currencyAddress,
-    address _gc0Address,
-    uint256 _gc0TokenId,
+    address _oathForgeAddress,
+    uint256 _oathForgeTokenId,
     uint256 _totalSupply,
     uint256 _auctionAllowedAt,
     uint256 _sunsetBuffer,
@@ -50,10 +50,10 @@ contract GCF0 is ERC20 {
     uint256 _minBidDeltaMilliperun
   ) public {
     currencyAddress = _currencyAddress;
-    gc0Address = _gc0Address;
-    gc0TokenId = _gc0TokenId;
+    oathForgeAddress = _oathForgeAddress;
+    oathForgeTokenId = _oathForgeTokenId;
     auctionAllowedAt = _auctionAllowedAt;
-    sunsetLength = GC0(_gc0Address).sunsetLength(_gc0TokenId);
+    sunsetLength = OathForge(_oathForgeAddress).sunsetLength(_oathForgeTokenId);
     sunsetBuffer = _sunsetBuffer;
     minAuctionCompleteWait = _minAuctionCompleteWait;
     minBidDeltaMilliperun = _minBidDeltaMilliperun;
@@ -61,9 +61,9 @@ contract GCF0 is ERC20 {
     _mint(msg.sender, _totalSupply);
   }
 
-  /// @dev Get `sunsetInitiatedAt` of the `GC0` token
+  /// @dev Get `sunsetInitiatedAt` of the `OathForge` token
   function sunsetInitiatedAt() public view returns(uint256) {
-    return GC0(gc0Address).sunsetInitiatedAt(gc0TokenId);
+    return OathForge(oathForgeAddress).sunsetInitiatedAt(oathForgeTokenId);
   }
 
   /// @dev Determine if in sunset buffer period (and thus anyone can start an auction)

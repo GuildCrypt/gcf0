@@ -15,8 +15,8 @@ Author: GuildCrypt
 | [`completeAuction()`](#completeAuction()) | function (non-constant) |
 | [`currencyAddress()`](#currencyAddress()) | function (constant) |
 | [`decreaseAllowance(address,uint256)`](#decreaseAllowance(address,uint256)) | function (non-constant) |
-| [`gc0Address()`](#gc0Address()) | function (constant) |
-| [`gc0TokenId()`](#gc0TokenId()) | function (constant) |
+| [`oathforgeAddress()`](#oathforgeAddress()) | function (constant) |
+| [`oathforgeTokenId()`](#oathforgeTokenId()) | function (constant) |
 | [`increaseAllowance(address,uint256)`](#increaseAllowance(address,uint256)) | function (non-constant) |
 | [`isInSunsetBufferPeriod()`](#isInSunsetBufferPeriod()) | function (constant) |
 | [`minAuctionCompleteWait()`](#minAuctionCompleteWait()) | function (constant) |
@@ -70,8 +70,8 @@ Author: GuildCrypt
 |  | Type | Name | Description |
 |---|---|---|---|
 | `0` | `address` | `_currencyAddress` |  |
-| `1` | `address` | `_gc0Address` |  |
-| `2` | `uint256` | `_gc0TokenId` |  |
+| `1` | `address` | `_oathforgeAddress` |  |
+| `2` | `uint256` | `_oathforgeTokenId` |  |
 | `3` | `uint256` | `_totalSupply` |  |
 | `4` | `uint256` | `_auctionAllowedAt` |  |
 | `5` | `uint256` | `_sunsetBuffer` |  |
@@ -125,13 +125,13 @@ Author: GuildCrypt
 |---|---|---|---|
 | `0` | `bool` |  |  |
 ---
-#### <a name="gc0Address()"></a> `gc0Address()`
+#### <a name="oathforgeAddress()"></a> `oathforgeAddress()`
 ##### Outputs
 |  | Type | Name | Description |
 |---|---|---|---|
 | `0` | `address` |  |  |
 ---
-#### <a name="gc0TokenId()"></a> `gc0TokenId()`
+#### <a name="oathforgeTokenId()"></a> `oathforgeTokenId()`
 ##### Outputs
 |  | Type | Name | Description |
 |---|---|---|---|

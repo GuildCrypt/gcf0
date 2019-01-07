@@ -1,6 +1,6 @@
 const ultralightbeam = require('./ultralightbeam')
 const gcf0Info = require('../')
-const gc0Info = require('./gc0Info')
+const oathForgeInfo = require('./oathForgeInfo')
 const currencyInfo = require('./currencyInfo')
 const Amorph = require('amorph')
 const amorphNumber = require('amorph-number')
@@ -77,23 +77,23 @@ describe('gcf0', () => {
 
 
 
-  let gc0
+  let oathForge
   let gcf0
   let currency
 
-  describe('setup gc0', () => {
-    it('should deploy gc0', () => {
-      return ultralightbeam.solDeploy(gc0Info.code, gc0Info.abi, [
+  describe('setup oathForge', () => {
+    it('should deploy oathForge', () => {
+      return ultralightbeam.solDeploy(oathForgeInfo.code, oathForgeInfo.abi, [
         name,
         symbol
       ], {
         from: accounts[0]
-      }).then((_gc0) => {
-        gc0 = _gc0
+      }).then((_oathForge) => {
+        oathForge = _oathForge
       })
     })
     it('should create first token', () => {
-      return gc0.broadcast('mint(address,string,uint256)', [accounts[1].address, wholeTokens.a.uri, wholeTokens.a.sunsetLength], {
+      return oathForge.broadcast('mint(address,string,uint256)', [accounts[1].address, wholeTokens.a.uri, wholeTokens.a.sunsetLength], {
         from: accounts[0]
       }).getConfirmation()
     })
@@ -124,7 +124,7 @@ describe('gcf0', () => {
     it('should deploy gcf0', () => {
       return ultralightbeam.solDeploy(gcf0Info.code, gcf0Info.abi, [
         currency.address,
-        gc0.address,
+        oathForge.address,
         wholeTokens.a.id,
         fracturedTokens.a0.totalSupply,
         fracturedTokens.a0.auctionAllowedAt,
@@ -138,11 +138,11 @@ describe('gcf0', () => {
         gcf0Stub.resolve(gcf0)
       })
     })
-    it('gcf0 accounts[1] should have correct gc0Address', () => {
-      return gcf0.fetch('gc0Address()', []).should.eventually.amorphEqual(gc0.address)
+    it('gcf0 accounts[1] should have correct oathForgeAddress', () => {
+      return gcf0.fetch('oathForgeAddress()', []).should.eventually.amorphEqual(oathForge.address)
     })
-    it('gcf0 accounts[1] should have correct gc0TokenId', () => {
-      return gcf0.fetch('gc0TokenId()', []).should.eventually.amorphEqual(wholeTokens.a.id)
+    it('gcf0 accounts[1] should have correct oathForgeTokenId', () => {
+      return gcf0.fetch('oathForgeTokenId()', []).should.eventually.amorphEqual(wholeTokens.a.id)
     })
     it('gcf0 accounts[1] should have correct auctionAllowedAt', () => {
       return gcf0.fetch('auctionAllowedAt()', []).should.eventually.amorphEqual(fracturedTokens.a0.auctionAllowedAt)
@@ -153,16 +153,16 @@ describe('gcf0', () => {
     it('should have correct code', () => {
       return ultralightbeam.eth.getCode(gcf0.address).should.eventually.amorphEqual(gcf0Info.runcode)
     })
-    it('should NOT have token ownership', () => {
-      return gcf0.fetch('hasGc0TokenOwnership()', []).should.eventually.amorphEqual(amorphFalse)
+    it('account[1] should have othforge token ownership', () => {
+      return oathForge.fetch('ownerOf(uint256)', [wholeTokens.a.id]).should.eventually.amorphEqual(accounts[1].address)
     })
     it('account[1] should transfer tokenA to gcf0A0', () => {
-      return gc0.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, gcf0.address, wholeTokens.a.id], {
+      return oathForge.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, gcf0.address, wholeTokens.a.id], {
         from: accounts[1]
       }).getConfirmation()
     })
-    it('should have token ownership', () => {
-      return gcf0.fetch('hasGc0TokenOwnership()', []).should.eventually.amorphEqual(amorphTrue)
+    it('gcf0 should have token ownership', () => {
+      return oathForge.fetch('ownerOf(uint256)', [wholeTokens.a.id]).should.eventually.amorphEqual(gcf0.address)
     })
     testGcf(1000, [0, 1000, 0, 0, 0], 1, 0)
     testCurrency(0, [980000, 0, 0, 10000, 10000])
