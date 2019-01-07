@@ -47,6 +47,24 @@ contract RiftPact is ERC20 {
     _mint(msg.sender, 10000);
   }
 
+  /// @dev Emits when an auction is started
+  event AuctionStarted();
+
+  /// @dev Emits when the auction is completed
+  /// @param bid The final bid price of the auction
+  /// @param winner The winner of the auction
+  event AuctionCompleted(address winner, uint256 bid);
+
+  /// @dev Emits when there is a bid
+  /// @param bid The bid
+  /// @param bidder The address of the bidder
+  event Bid(address bidder, uint256 bid);
+
+  /// @dev Emits when there is a payout
+  /// @param to The address of the account paying out
+  /// @param balance The balance of `to` prior to the paying out
+  event Payout(address to, uint256 balance);
+
   /// @dev Returns the DAI contract address.
   function daiAddress() external view returns(address) {
     return _daiAddress;
@@ -99,6 +117,7 @@ contract RiftPact is ERC20 {
       (now >= _auctionAllowedAt)
       || (OathForge(_oathForgeAddress).sunsetInitiatedAt(_oathForgeTokenId) > 0)
     );
+    emit AuctionStarted();
     _auctionStartedAt = now;
   }
 
@@ -108,10 +127,12 @@ contract RiftPact is ERC20 {
     require(_auctionStartedAt > 0);
     require(_auctionCompletedAt == 0);
     require (bid >= _minBid);
+    emit Bid(msg.sender, bid);
     if (_topBidder != address(0)) {
       require(ERC20(_daiAddress).transfer(_topBidder, _topBid * totalSupply()));
     }
     require(ERC20(_daiAddress).transferFrom(msg.sender, address(this), bid * totalSupply()));
+
     _topBid = bid;
     _topBidder = msg.sender;
     _topBidSubmittedAt = now;
@@ -137,15 +158,18 @@ contract RiftPact is ERC20 {
     require(_auctionCompletedAt == 0);
     require(_topBid > 0);
     require((_topBidSubmittedAt + _minAuctionCompleteWait) < now);
+    emit AuctionCompleted(_topBidder, _topBid);
     _auctionCompletedAt = now;
   }
 
   /// @dev Payout `dai` after auction completed
   function payout() external {
-    require(balanceOf(msg.sender) > 0);
+    uint256 balance = balanceOf(msg.sender);
+    require(balance > 0);
     require(_auctionCompletedAt > 0);
-    require(ERC20(_daiAddress).transfer(msg.sender, balanceOf(msg.sender) * _topBid));
-    _burn(msg.sender, balanceOf(msg.sender));
+    emit Payout(msg.sender, balance);
+    require(ERC20(_daiAddress).transfer(msg.sender, balance * _topBid));
+    _burn(msg.sender, balance);
   }
 
 
