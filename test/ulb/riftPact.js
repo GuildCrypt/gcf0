@@ -1,5 +1,5 @@
 const ultralightbeam = require('./ultralightbeam')
-const riftPactInfo = require('../')
+const riftPactInfo = require('../../')
 const oathForgeInfo = require('./oathForgeInfo')
 const daiInfo = require('./daiInfo')
 const Amorph = require('amorph')

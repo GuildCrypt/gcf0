@@ -2,7 +2,7 @@ const parseSolcOutput = require('ultralightbeam/lib/parseSolcOutput')
 const solc = require('solc')
 const fs = require('fs')
 
-const zeppelinContractsDir = `${__dirname}/../node_modules/openzeppelin-solidity/contracts`
+const zeppelinContractsDir = `${__dirname}/../../node_modules/openzeppelin-solidity/contracts`
 
 module.exports = parseSolcOutput(solc.compile({
     sources: {
