@@ -17,6 +17,7 @@ module.exports = solc.compile({
       'ERC721.sol': fs.readFileSync(`${zeppelinContractsDir}/token/ERC721/ERC721.sol`, 'utf8'),
       'IERC20.sol': fs.readFileSync(`${zeppelinContractsDir}/token/ERC20/IERC20.sol`, 'utf8'),
       'ERC20.sol': fs.readFileSync(`${zeppelinContractsDir}/token/ERC20/ERC20.sol`, 'utf8'),
+      'utils/ReentrancyGuard.sol': fs.readFileSync(`${zeppelinContractsDir}/utils/ReentrancyGuard.sol`, 'utf8'),
       'ownership/Ownable.sol': fs.readFileSync(`${zeppelinContractsDir}/ownership/Ownable.sol`, 'utf8'),
       'OathForge.sol': fs.readFileSync(`${__dirname}/node_modules/oathforge/OathForge.sol`, 'utf8'),
       'RiftPact.sol': fs.readFileSync(`${__dirname}/RiftPact.sol`, 'utf8'),

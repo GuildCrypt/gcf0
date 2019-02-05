@@ -5,10 +5,11 @@ import "ERC721.sol";
 import "ERC20.sol";
 import "math/SafeMath.sol";
 import "ownership/Ownable.sol";
+import "utils/ReentrancyGuard.sol";
 
 /// @title RiftPact: OathForge Token Fracturizer
 /// @author GuildCrypt
-contract RiftPact is ERC20, Ownable {
+contract RiftPact is ERC20, Ownable, ReentrancyGuard {
 
   using SafeMath for uint256;
 
@@ -130,7 +131,7 @@ contract RiftPact is ERC20, Ownable {
   }
 
   /// @dev Start an auction
-  function startAuction() external {
+  function startAuction() external nonReentrant {
     require(_auctionStartedAt == 0);
     require(
       (now >= _auctionAllowedAt)
@@ -142,7 +143,7 @@ contract RiftPact is ERC20, Ownable {
 
   /// @dev Submit a bid. Must have sufficient funds approved in currency contract (bid * totalSupply).
   /// @param bid Bid in currency
-  function submitBid(uint256 bid) external {
+  function submitBid(uint256 bid) external nonReentrant {
     require(_auctionStartedAt > 0);
     require(_auctionCompletedAt == 0);
     require (bid >= _minBid);
@@ -180,7 +181,7 @@ contract RiftPact is ERC20, Ownable {
   }
 
   /// @dev Payout `currency` after auction completed
-  function payout() external {
+  function payout() external nonReentrant {
     uint256 balance = balanceOf(msg.sender);
     require(balance > 0);
     require(_auctionCompletedAt > 0);
