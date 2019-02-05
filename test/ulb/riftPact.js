@@ -142,10 +142,10 @@ describe('riftPact', () => {
     it('should have correct code', () => {
       return ultralightbeam.eth.getCode(riftPact.address).should.eventually.amorphEqual(riftPactInfo.runcode)
     })
-    it('account[1] should have othforge token ownership', () => {
+    it('accounts[1] should have othforge token ownership', () => {
       return oathForge.fetch('ownerOf(uint256)', [oathForgeToken.id]).should.eventually.amorphEqual(accounts[1].address)
     })
-    it('account[1] should transfer tokenA to riftPact', () => {
+    it('accounts[1] should transfer tokenA to riftPact', () => {
       return oathForge.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, riftPact.address, oathForgeToken.id], {
         from: accounts[1]
       }).getConfirmation()
@@ -155,6 +155,44 @@ describe('riftPact', () => {
     })
     testRiftPact(10000, [0, 10000, 0, 0, 0], 1, 0)
     testCurrency(0, [0, 0, 0, 1000000000, 1000000000])
+  })
+  describe('blacklisting', () => {
+    it('accounts[2] should not be able to blacklist account 6', () => {
+      return riftPact.broadcast('setIsBlacklisted(address,bool)', [accounts[6].address, amorphTrue], {
+        from: accounts[2]
+      }).getConfirmation().should.eventually.be.rejectedWith(FailedTransactionError)
+    })
+    it('accounts[6] should not be blacklisted', () => {
+      return riftPact.fetch('isBlacklisted(address)', [accounts[6].address]).should.eventually.amorphEqual(amorphFalse)
+    })
+    it('accounts[1] should not be able to blacklist account 6', () => {
+      return riftPact.broadcast('setIsBlacklisted(address,bool)', [accounts[6].address, amorphTrue], {
+        from: accounts[1]
+      }).getConfirmation()
+    })
+    it('accounts[6] should be blacklisted', () => {
+      return riftPact.fetch('isBlacklisted(address)', [accounts[6].address]).should.eventually.amorphEqual(amorphTrue)
+    })
+    it('accounts[1] should not be able to transfer to accounts[6]', () => {
+      return riftPact.broadcast('transfer(address,uint256)', [accounts[6].address, one], {
+        from: accounts[1]
+      }).getConfirmation().should.eventually.be.rejectedWith(FailedTransactionError)
+    })
+    it('accounts[1] should not be able to transferFrom to accounts[6]', () => {
+      return riftPact.broadcast('transferFrom(address,address,uint256)', [accounts[1].address, accounts[6].address, one], {
+        from: accounts[1]
+      }).getConfirmation().should.eventually.be.rejectedWith(FailedTransactionError)
+    })
+    it('accounts[1] should not be able to approve accounts[6]', () => {
+      return riftPact.broadcast('approve(address,uint256)', [accounts[6].address, one], {
+        from: accounts[1]
+      }).getConfirmation().should.eventually.be.rejectedWith(FailedTransactionError)
+    })
+    it('accounts[1] should not be able to increaseAllowance to accounts[6]', () => {
+      return riftPact.broadcast('increaseAllowance(address,uint256)', [accounts[6].address, one], {
+        from: accounts[1]
+      }).getConfirmation().should.eventually.be.rejectedWith(FailedTransactionError)
+    })
   })
   describe('approve currency', () => {
     it('accounts[3] should approve 1trillion', () => {
@@ -179,12 +217,12 @@ describe('riftPact', () => {
     testCurrency(0, [0, 0, 0, 1000000000, 1000000000])
   })
   describe('start auction', () => {
-    it('account[0] should NOT be able to start auction', () => {
+    it('accounts[0] should NOT be able to start auction', () => {
       return riftPact.broadcast('startAuction()', [], {
         from: accounts[0]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
-    it('account[1] should NOT be able to start auction', () => {
+    it('accounts[1] should NOT be able to start auction', () => {
       return riftPact.broadcast('startAuction()', [], {
         from: accounts[1]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
@@ -209,7 +247,7 @@ describe('riftPact', () => {
 
       return ultralightbeam.blockPoller.blockPromise
     })
-    it('account[1] should start auction', () => {
+    it('accounts[1] should start auction', () => {
       return riftPact.broadcast('startAuction()', [], {
         from: accounts[1]
       }).getConfirmation()
@@ -241,12 +279,12 @@ describe('riftPact', () => {
     testCurrency(0, [0, 0, 0, 1000000000, 1000000000])
   })
   describe('first bid (1)', () => {
-    it('account[3] should submit low bid and be rejected', () => {
+    it('accounts[3] should submit low bid and be rejected', () => {
       return riftPact.broadcast('submitBid(uint256)', [zero], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
-    it('account[3] should submit min bid', () => {
+    it('accounts[3] should submit min bid', () => {
       return riftPact.broadcast('submitBid(uint256)', [one], {
         from: accounts[3]
       }).getConfirmation()
@@ -255,12 +293,12 @@ describe('riftPact', () => {
     testCurrency(10000, [0, 0, 0, 1000000000 - 10000, 1000000000])
   })
   describe('second bid (2)', () => {
-    it('account[4] should NOT be able to min bid - 1', () => {
+    it('accounts[4] should NOT be able to min bid - 1', () => {
       return riftPact.broadcast('submitBid(uint256)', [one], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
-    it('account[4] should be able to min bid', () => {
+    it('accounts[4] should be able to min bid', () => {
       return riftPact.broadcast('submitBid(uint256)', [two], {
         from: accounts[4]
       }).getConfirmation()
@@ -269,12 +307,12 @@ describe('riftPact', () => {
     testCurrency(20000, [0, 0, 0, 1000000000, 1000000000 - 20000])
   })
   describe('third bid (3)', () => {
-    it('account[3] should NOT be able to min bid - 1', () => {
+    it('accounts[3] should NOT be able to min bid - 1', () => {
       return riftPact.broadcast('submitBid(uint256)', [two], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
-    it('account[3] should be able to min bid', () => {
+    it('accounts[3] should be able to min bid', () => {
       return riftPact.broadcast('submitBid(uint256)', [three], {
         from: accounts[3]
       }).getConfirmation()
@@ -283,7 +321,7 @@ describe('riftPact', () => {
     testCurrency(30000, [0, 0, 0, 1000000000 - 30000, 1000000000])
   })
   describe('fourth bid (1000)', () => {
-    it('account[4] should be able to 1000', () => {
+    it('accounts[4] should be able to 1000', () => {
       return riftPact.broadcast('submitBid(uint256)', [thousand], {
         from: accounts[4]
       }).getConfirmation()
@@ -292,12 +330,12 @@ describe('riftPact', () => {
     testCurrency(10000000, [0, 0, 0, 1000000000, 1000000000 - 10000000])
   })
   describe('fourth bid (1005)', () => {
-    it('account[3] should NOT be able to min bid - 1', () => {
+    it('accounts[3] should NOT be able to min bid - 1', () => {
       return riftPact.broadcast('submitBid(uint256)', [Amorph.from(amorphNumber.unsigned, 1004)], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
-    it('account[3] should be able to min bid', () => {
+    it('accounts[3] should be able to min bid', () => {
       return riftPact.broadcast('submitBid(uint256)', [Amorph.from(amorphNumber.unsigned, 1005)], {
         from: accounts[3]
       }).getConfirmation()
@@ -306,12 +344,12 @@ describe('riftPact', () => {
     testCurrency(10050000, [0, 0, 0, 1000000000 - 10050000, 1000000000])
   })
   describe('fifth bid (1011, against self)', () => {
-    it('account[3] should NOT be able to min bid - 1', () => {
+    it('accounts[3] should NOT be able to min bid - 1', () => {
       return riftPact.broadcast('submitBid(uint256)', [Amorph.from(amorphNumber.unsigned, 1010)], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
-    it('account[3] should be able to min bid', () => {
+    it('accounts[3] should be able to min bid', () => {
       return riftPact.broadcast('submitBid(uint256)', [Amorph.from(amorphNumber.unsigned, 1011)], {
         from: accounts[3]
       }).getConfirmation()
@@ -320,7 +358,7 @@ describe('riftPact', () => {
     testCurrency(10110000, [0, 0, 0, 1000000000 - 10110000, 1000000000])
   })
   describe('sixth bid (100k, (max liquidity))', () => {
-    it('account[4] should be able to submit min bid', () => {
+    it('accounts[4] should be able to submit min bid', () => {
       return riftPact.broadcast('submitBid(uint256)', [hundredThousand], {
         from: accounts[4]
       }).getConfirmation()
@@ -329,7 +367,7 @@ describe('riftPact', () => {
     testCurrency(1000000000, [0, 0, 0, 1000000000, 0])
   })
   describe('seventh bid (> max liquidity)', () => {
-    it('account[3] should NOT be able to min bid', () => {
+    it('accounts[3] should NOT be able to min bid', () => {
       return riftPact.broadcast('submitBid(uint256)', [Amorph.from(amorphNumber.unsigned, 100500000)], {
         from: accounts[3]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
@@ -338,12 +376,12 @@ describe('riftPact', () => {
     testCurrency(1000000000, [0, 0, 0, 1000000000, 0])
   })
   describe('complete auction', () => {
-    it('account[0] should NOT be able to completeAuction', () => {
+    it('accounts[0] should NOT be able to completeAuction', () => {
       return riftPact.broadcast('completeAuction()', [], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
-    it('account[4] should NOT be able to completeAuction', () => {
+    it('accounts[4] should NOT be able to completeAuction', () => {
       return riftPact.broadcast('completeAuction()', [], {
         from: accounts[4]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
@@ -367,7 +405,7 @@ describe('riftPact', () => {
       }, () => {})
       return ultralightbeam.blockPoller.blockPromise
     })
-    it('account[1] should be able to completeAuction', () => {
+    it('accounts[1] should be able to completeAuction', () => {
       return riftPact.broadcast('completeAuction()', [], {
         from: accounts[0]
       }).getConfirmation()
@@ -376,12 +414,12 @@ describe('riftPact', () => {
     testCurrency(1000000000, [0, 0, 0, 1000000000, 0])
   })
   describe('first payout', () => {
-    it('account[1] should be able to payout', () => {
+    it('accounts[1] should be able to payout', () => {
       return riftPact.broadcast('payout()', [], {
         from: accounts[1]
       }).getConfirmation()
     })
-    it('account[0] should NOT be able to payout again', () => {
+    it('accounts[0] should NOT be able to payout again', () => {
       return riftPact.broadcast('payout()', [], {
         from: accounts[1]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
@@ -390,7 +428,7 @@ describe('riftPact', () => {
     testCurrency(600000000, [0, 400000000, 0, 1000000000, 0])
   })
   describe('second payout', () => {
-    it('account[2] should be able to payout', () => {
+    it('accounts[2] should be able to payout', () => {
       return riftPact.broadcast('payout()', [], {
         from: accounts[2]
       }).getConfirmation()

@@ -12,9 +12,10 @@ module.exports = function testGcf(totalSupply, balances, minBid, topBid) {
       })
     })
     accounts.forEach((account, index) => {
-      it(`account ${index} should have balance of ${balances[index]}`, () => {
+      let balance = balances[index] || 0
+      it(`account ${index} should have balance of ${balance}`, () => {
         return riftPactStub.promise.then((riftPact) => {
-          return riftPact.fetch('balanceOf(address)', [account.address]).should.eventually.amorphEqual(Amorph.from(amorphNumber.unsigned, balances[index]))
+          return riftPact.fetch('balanceOf(address)', [account.address]).should.eventually.amorphEqual(Amorph.from(amorphNumber.unsigned, balance))
         })
       })
     })

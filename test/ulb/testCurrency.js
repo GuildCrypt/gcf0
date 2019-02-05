@@ -15,9 +15,10 @@ module.exports = function testCta(riftPactBalance, balances) {
       })
     })
     accounts.forEach((account, index) => {
-      it(`account ${index} should have balance of ${balances[index]}`, () => {
+      const balance = balances[index] || 0
+      it(`account ${index} should have balance of ${balance}`, () => {
         return currencyStub.promise.then((currency) => {
-          return currency.fetch('balanceOf(address)', [account.address]).should.eventually.amorphEqual(Amorph.from(amorphNumber.unsigned, balances[index]))
+          return currency.fetch('balanceOf(address)', [account.address]).should.eventually.amorphEqual(Amorph.from(amorphNumber.unsigned, balance))
         })
       })
     })
