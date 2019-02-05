@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --bail --timeout 10000 test/web3"
+    "test": "mocha --bail --timeout 10000 test/ulb"
   },
   "author": "",
   "license": "ISC",
