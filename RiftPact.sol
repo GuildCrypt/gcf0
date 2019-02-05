@@ -4,10 +4,11 @@ import "OathForge.sol";
 import "ERC721.sol";
 import "ERC20.sol";
 import "math/SafeMath.sol";
+import "ownership/Ownable.sol";
 
 /// @title RiftPact: OathForge Token Fracturizer
 /// @author GuildCrypt
-contract RiftPact is ERC20 {
+contract RiftPact is ERC20, Ownable {
 
   using SafeMath for uint256;
 
@@ -28,7 +29,7 @@ contract RiftPact is ERC20 {
 
   /// @param __parentTokenId The id of the token on the OathForge contract
   /// @param __auctionAllowedAt The timestamp at which anyone can start an auction
-  /// @param __currencyAddress The address of the DAI contract
+  /// @param __currencyAddress The address of the currency contract
   /// @param __parentToken The address of the OathForge contract
   /// @param __minAuctionCompleteWait The minimum amount of time (in seconds) between when a bid is placed and when an auction can be completed
   /// @param __minBidDeltaPermille The minimum increase (expressed as 1/1000ths of the current bid) that a subsequent bid must be
@@ -71,7 +72,7 @@ contract RiftPact is ERC20 {
   /// @param balance The balance of `to` prior to the paying out
   event Payout(address to, uint256 balance);
 
-  /// @dev Returns the DAI contract address.
+  /// @dev Returns the currency contract address.
   function currencyAddress() external view returns(address) {
     return _currencyAddress;
   }
@@ -101,7 +102,7 @@ contract RiftPact is ERC20 {
     return _auctionAllowedAt;
   }
 
-  /// @dev Returns the minimum bid in attoDAI (10^-18 DAI).
+  /// @dev Returns the minimum bid in currency
   function minBid() external view returns(uint256) {
     return _minBid;
   }
@@ -137,8 +138,8 @@ contract RiftPact is ERC20 {
     _auctionStartedAt = now;
   }
 
-  /// @dev Submit a bid. Must have sufficient funds approved in `DAI` contract (bid * totalSupply).
-  /// @param bid Bid in attoDAI (10^-18 DAI)
+  /// @dev Submit a bid. Must have sufficient funds approved in currency contract (bid * totalSupply).
+  /// @param bid Bid in currency
   function submitBid(uint256 bid) external {
     require(_auctionStartedAt > 0);
     require(_auctionCompletedAt == 0);
