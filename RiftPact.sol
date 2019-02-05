@@ -27,6 +27,8 @@ contract RiftPact is ERC20, Ownable {
   address private _topBidder;
   uint256 private _topBidSubmittedAt;
 
+  mapping(address => bool) private _isBlacklisted;
+
   /// @param __parentTokenId The id of the token on the OathForge contract
   /// @param __auctionAllowedAt The timestamp at which anyone can start an auction
   /// @param __currencyAddress The address of the currency contract
@@ -187,5 +189,72 @@ contract RiftPact is ERC20, Ownable {
     _burn(msg.sender, balance);
   }
 
+  /// @dev Returns if an address is blacklisted
+  /// @param to The address to check
+  function isBlacklisted(address to) external view returns(bool){
+    return _isBlacklisted[to];
+  }
+
+  /// @dev Set if an address is blacklisted
+  /// @param to The address to change
+  /// @param __isBlacklisted True if the address should be blacklisted, false otherwise
+  function setIsBlacklisted(address to, bool __isBlacklisted) external onlyOwner {
+    _isBlacklisted[to] = __isBlacklisted;
+  }
+
+  /**
+   * @dev Transfer token for a specified address
+   * @param to The address to transfer to.
+   * @param value The amount to be transferred.
+   */
+  function transfer(address to, uint256 value) public returns (bool) {
+    require(!_isBlacklisted[to]);
+    return super.transfer(to, value);
+  }
+
+  /**
+    * @dev Transfer tokens from one address to another.
+    * Note that while this function emits an Approval event, this is not required as per the specification,
+    * and other compliant implementations may not emit the event.
+    * @param from address The address which you want to send tokens from
+    * @param to address The address which you want to transfer to
+    * @param value uint256 the amount of tokens to be transferred
+    */
+   function transferFrom(address from, address to, uint256 value) public returns (bool) {
+     require(!_isBlacklisted[to]);
+     return super.transferFrom(from, to, value);
+   }
+
+
+  /**
+   * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.
+   * Beware that changing an allowance with this method brings the risk that someone may use both the old
+   * and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this
+   * race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards:
+   * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+   * @param spender The address which will spend the funds.
+   * @param value The amount of tokens to be spent.
+   */
+  function approve(address spender, uint256 value) public returns (bool) {
+    if (value > 0) {
+      require(!_isBlacklisted[spender]);
+    }
+    return super.approve(spender, value);
+  }
+
+  /**
+   * @dev Increase the amount of tokens that an owner allowed to a spender.
+   * approve should be called when allowed_[_spender] == 0. To increment
+   * allowed value is better to use this function to avoid 2 calls (and wait until
+   * the first transaction is mined)
+   * From MonolithDAO Token.sol
+   * Emits an Approval event.
+   * @param spender The address which will spend the funds.
+   * @param addedValue The amount of tokens to increase the allowance by.
+   */
+  function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
+    require(!_isBlacklisted[spender]);
+    return super.increaseAllowance(spender, addedValue);
+  }
 
 }
