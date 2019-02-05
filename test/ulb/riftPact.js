@@ -1,7 +1,7 @@
 const ultralightbeam = require('./ultralightbeam')
 const riftPactInfo = require('../../')
 const oathForgeInfo = require('./oathForgeInfo')
-const daiInfo = require('./daiInfo')
+const currencyInfo = require('./currencyInfo')
 const Amorph = require('amorph')
 const amorphNumber = require('amorph-number')
 const accounts = require('./accounts')
@@ -9,9 +9,9 @@ const FailedTransactionError = require('ultralightbeam/lib/errors/FailedTransact
 const getRandomAmorph = require('ultralightbeam/lib/getRandomAmorph')
 const BluebirdStub = require('bluebird-stub')
 const testRiftPact = require('./testRiftPact')
-const testDai = require('./testDai')
+const testCurrency = require('./testCurrency')
 const riftPactStub = require('./riftPactStub')
-const daiStub = require('./daiStub')
+const currencyStub = require('./currencyStub')
 const amorphAscii = require('amorph-ascii')
 const chai = require('chai')
 const amorphBoolean = require('amorph-boolean')
@@ -57,7 +57,7 @@ describe('riftPact', () => {
 
   let oathForge
   let riftPact
-  let dai
+  let currency
 
   describe('setup oathForge', () => {
     it('should deploy oathForge', () => {
@@ -76,24 +76,24 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
   })
-  describe('setup dai', () => {
-    it('should deploy dai', () => {
-      return ultralightbeam.solDeploy(daiInfo.code, daiInfo.abi, [
+  describe('setup currency', () => {
+    it('should deploy currency', () => {
+      return ultralightbeam.solDeploy(currencyInfo.code, currencyInfo.abi, [
         twoBillion
       ], {
         from: accounts[0]
-      }).then((_dai) => {
-        dai = _dai
-        daiStub.resolve(dai)
+      }).then((_currency) => {
+        currency = _currency
+        currencyStub.resolve(currency)
       })
     })
     it('transfer 1billion to accounts[3]', () => {
-      return dai.broadcast('transfer(address,uint256)', [accounts[3].address, billion], {
+      return currency.broadcast('transfer(address,uint256)', [accounts[3].address, billion], {
         from: accounts[0]
       }).getConfirmation()
     })
     it('transfer 1billion to accounts[4]', () => {
-      return dai.broadcast('transfer(address,uint256)', [accounts[4].address, billion], {
+      return currency.broadcast('transfer(address,uint256)', [accounts[4].address, billion], {
         from: accounts[0]
       }).getConfirmation()
     })
@@ -103,7 +103,7 @@ describe('riftPact', () => {
       return ultralightbeam.solDeploy(riftPactInfo.code, riftPactInfo.abi, [
         oathForgeToken.id,
         auctionAllowedAt,
-        dai.address,
+        currency.address,
         oathForge.address
       ], {
         from: accounts[1]
@@ -139,20 +139,20 @@ describe('riftPact', () => {
       return oathForge.fetch('ownerOf(uint256)', [oathForgeToken.id]).should.eventually.amorphEqual(riftPact.address)
     })
     testRiftPact(10000, [0, 10000, 0, 0, 0], 1, 0)
-    testDai(0, [0, 0, 0, 1000000000, 1000000000])
+    testCurrency(0, [0, 0, 0, 1000000000, 1000000000])
   })
-  describe('approve dai', () => {
+  describe('approve currency', () => {
     it('accounts[3] should approve 1trillion', () => {
-      return dai.broadcast('approve(address,uint256)', [riftPact.address, trillion], {
+      return currency.broadcast('approve(address,uint256)', [riftPact.address, trillion], {
         from: accounts[3]
       }).getConfirmation()
     })
     it('accounts[4] should approve 1trillion', () => {
-      return dai.broadcast('approve(address,uint256)', [riftPact.address, trillion], {
+      return currency.broadcast('approve(address,uint256)', [riftPact.address, trillion], {
         from: accounts[4]
       }).getConfirmation()
     })
-    testDai(0, [0, 0, 0, 1000000000, 1000000000])
+    testCurrency(0, [0, 0, 0, 1000000000, 1000000000])
   })
   describe('first transfer', () => {
     it('account1 should transfer 5000 riftpact tokens to account2', () => {
@@ -161,7 +161,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 5000, 5000, 0, 0], 1, 0)
-    testDai(0, [0, 0, 0, 1000000000, 1000000000])
+    testCurrency(0, [0, 0, 0, 1000000000, 1000000000])
   })
   describe('start auction', () => {
     it('account[0] should NOT be able to start auction', () => {
@@ -214,7 +214,7 @@ describe('riftPact', () => {
       return riftPact.fetch('minBid()', []).should.eventually.amorphEqual(one)
     })
     testRiftPact(10000, [0, 5000, 5000, 0, 0], 1, 0)
-    testDai(0, [0, 0, 0, 1000000000, 1000000000])
+    testCurrency(0, [0, 0, 0, 1000000000, 1000000000])
   })
   describe('second transfer', () => {
     it('account1 should transfer 1000 riftpact tokens to account2', () => {
@@ -223,7 +223,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 1, 0)
-    testDai(0, [0, 0, 0, 1000000000, 1000000000])
+    testCurrency(0, [0, 0, 0, 1000000000, 1000000000])
   })
   describe('first bid (1)', () => {
     it('account[3] should submit low bid and be rejected', () => {
@@ -237,7 +237,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 2, 1)
-    testDai(10000, [0, 0, 0, 1000000000 - 10000, 1000000000])
+    testCurrency(10000, [0, 0, 0, 1000000000 - 10000, 1000000000])
   })
   describe('second bid (2)', () => {
     it('account[4] should NOT be able to min bid - 1', () => {
@@ -251,7 +251,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 3, 2)
-    testDai(20000, [0, 0, 0, 1000000000, 1000000000 - 20000])
+    testCurrency(20000, [0, 0, 0, 1000000000, 1000000000 - 20000])
   })
   describe('third bid (3)', () => {
     it('account[3] should NOT be able to min bid - 1', () => {
@@ -265,7 +265,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 4, 3)
-    testDai(30000, [0, 0, 0, 1000000000 - 30000, 1000000000])
+    testCurrency(30000, [0, 0, 0, 1000000000 - 30000, 1000000000])
   })
   describe('fourth bid (1000)', () => {
     it('account[4] should be able to 1000', () => {
@@ -274,7 +274,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 1005, 1000)
-    testDai(10000000, [0, 0, 0, 1000000000, 1000000000 - 10000000])
+    testCurrency(10000000, [0, 0, 0, 1000000000, 1000000000 - 10000000])
   })
   describe('fourth bid (1005)', () => {
     it('account[3] should NOT be able to min bid - 1', () => {
@@ -288,7 +288,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 1011, 1005)
-    testDai(10050000, [0, 0, 0, 1000000000 - 10050000, 1000000000])
+    testCurrency(10050000, [0, 0, 0, 1000000000 - 10050000, 1000000000])
   })
   describe('fifth bid (1011, against self)', () => {
     it('account[3] should NOT be able to min bid - 1', () => {
@@ -302,7 +302,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 1017, 1011)
-    testDai(10110000, [0, 0, 0, 1000000000 - 10110000, 1000000000])
+    testCurrency(10110000, [0, 0, 0, 1000000000 - 10110000, 1000000000])
   })
   describe('sixth bid (100k, (max liquidity))', () => {
     it('account[4] should be able to submit min bid', () => {
@@ -311,7 +311,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 100500, 100000)
-    testDai(1000000000, [0, 0, 0, 1000000000, 0])
+    testCurrency(1000000000, [0, 0, 0, 1000000000, 0])
   })
   describe('seventh bid (> max liquidity)', () => {
     it('account[3] should NOT be able to min bid', () => {
@@ -320,7 +320,7 @@ describe('riftPact', () => {
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 100500, 100000)
-    testDai(1000000000, [0, 0, 0, 1000000000, 0])
+    testCurrency(1000000000, [0, 0, 0, 1000000000, 0])
   })
   describe('complete auction', () => {
     it('account[0] should NOT be able to completeAuction', () => {
@@ -358,7 +358,7 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(10000, [0, 4000, 6000, 0, 0], 100500, 100000)
-    testDai(1000000000, [0, 0, 0, 1000000000, 0])
+    testCurrency(1000000000, [0, 0, 0, 1000000000, 0])
   })
   describe('first payout', () => {
     it('account[1] should be able to payout', () => {
@@ -372,7 +372,7 @@ describe('riftPact', () => {
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     testRiftPact(6000, [0, 0, 6000, 0, 0], 100500, 100000)
-    testDai(600000000, [0, 400000000, 0, 1000000000, 0])
+    testCurrency(600000000, [0, 400000000, 0, 1000000000, 0])
   })
   describe('second payout', () => {
     it('account[2] should be able to payout', () => {
@@ -381,6 +381,6 @@ describe('riftPact', () => {
       }).getConfirmation()
     })
     testRiftPact(0, [0, 0, 0, 0, 0], 100500, 100000)
-    testDai(0, [0, 400000000, 600000000, 1000000000, 0])
+    testCurrency(0, [0, 400000000, 600000000, 1000000000, 0])
   })
 })

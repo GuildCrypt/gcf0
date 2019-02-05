@@ -11,6 +11,6 @@ module.exports = parseSolcOutput(solc.compile({
       'IERC20.sol': fs.readFileSync(`${zeppelinContractsDir}/token/ERC20/IERC20.sol`, 'utf8'),
       'ERC20.sol': fs.readFileSync(`${zeppelinContractsDir}/token/ERC20/ERC20.sol`, 'utf8'),
       'ownership/Ownable.sol': fs.readFileSync(`${zeppelinContractsDir}/ownership/Ownable.sol`, 'utf8'),
-      'Dai.sol': fs.readFileSync(`${__dirname}/Dai.sol`, 'utf8'),
+      'Currency.sol': fs.readFileSync(`${__dirname}/Currency.sol`, 'utf8'),
     }
-  }, 1))['Dai.sol:Dai']
+  }, 1))['Currency.sol:Currency']
