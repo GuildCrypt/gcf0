@@ -104,7 +104,10 @@ describe('riftPact', () => {
         oathForgeToken.id,
         auctionAllowedAt,
         currency.address,
-        oathForge.address
+        oathForge.address,
+        sevenDays,
+        five,
+        tenThousand
       ], {
         from: accounts[1]
       }).then((_riftPact) => {
@@ -112,16 +115,28 @@ describe('riftPact', () => {
         riftPactStub.resolve(riftPact)
       })
     })
-    it('riftPact accounts[1] should have correct oathForgeAddress', () => {
-      return riftPact.fetch('oathForgeAddress()', []).should.eventually.amorphEqual(oathForge.address)
-    })
-    it('riftPact accounts[1] should have correct oathForgeTokenId', () => {
+    it('riftPact should have correct oathForgeTokenId', () => {
       return riftPact.fetch('oathForgeTokenId()', []).should.eventually.amorphEqual(oathForgeToken.id)
     })
-    it('riftPact accounts[1] should have correct auctionAllowedAt', () => {
+    it('riftPact should have correct auctionAllowedAt', () => {
       return riftPact.fetch('auctionAllowedAt()', []).should.eventually.amorphEqual(auctionAllowedAt)
     })
-    it('riftPact accounts[1] should have balance of totalSupply', () => {
+    it('riftPact should have correct currencyAddress', () => {
+      return riftPact.fetch('currencyAddress()', []).should.eventually.amorphEqual(currency.address)
+    })
+    it('riftPact should have correct oathForgeAddress', () => {
+      return riftPact.fetch('oathForgeAddress()', []).should.eventually.amorphEqual(oathForge.address)
+    })
+    it('riftPact should have correct minAuctionCompleteWait', () => {
+      return riftPact.fetch('minAuctionCompleteWait()', []).should.eventually.amorphEqual(sevenDays)
+    })
+    it('riftPact should have correct minBidDeltaPermille', () => {
+      return riftPact.fetch('minBidDeltaPermille()', []).should.eventually.amorphEqual(five)
+    })
+    it('riftPact should have correct totalSupply', () => {
+      return riftPact.fetch('totalSupply()', []).should.eventually.amorphEqual(tenThousand)
+    })
+    it('riftPact should have balance of totalSupply', () => {
       return riftPact.fetch('balanceOf(address)', [accounts[1].address]).should.eventually.amorphEqual(tenThousand)
     })
     it('should have correct code', () => {

@@ -13,15 +13,14 @@ contract RiftPact is ERC20 {
 
   address private _currencyAddress;
   address private _oathForgeAddress;
-  uint256 private _minAuctionCompleteWait = 604800; // 7 days in seconds
+  uint256 private _minAuctionCompleteWait; // 7 days in seconds
 
   uint256 private _oathForgeTokenId;
   uint256 private _auctionAllowedAt;
 
   uint256 private _auctionStartedAt;
   uint256 private _auctionCompletedAt;
-  uint256 private _minBidDeltaPerunNumerator = 5;
-  uint256 private _minBidDeltaPerunDenominator = 1000;
+  uint256 private _minBidDeltaPermille;
 
   uint256 private _minBid = 1;
   uint256 private _topBid;
@@ -30,21 +29,30 @@ contract RiftPact is ERC20 {
 
   /// @param __oathForgeTokenId The id of the token on the OathForge contract
   /// @param __auctionAllowedAt The timestamp at which anyone can start an auction
-  /// @param __currencyAddress The address of the DAI contract. **TODO: Hard code. Left Variable for testability.**
-  /// @param __oathForgeAddress The address of the OathForge contract **TODO: Hard code. Left Variable for testability.**
+  /// @param __currencyAddress The address of the DAI contract
+  /// @param __oathForgeAddress The address of the OathForge contract
+  /// @param __minAuctionCompleteWait The minimum amount of time (in seconds) between when a bid is placed and when an auction can be completed
+  /// @param __minBidDeltaPermille The minimum increase (expressed as 1/1000ths of the current bid) that a subsequent bid must be
+  /// @param __totalSupply The total supply
   constructor(
     uint256 __oathForgeTokenId,
     uint256 __auctionAllowedAt,
     address __currencyAddress,
-    address __oathForgeAddress
+    address __oathForgeAddress,
+    uint256 __minAuctionCompleteWait,
+    uint256 __minBidDeltaPermille,
+    uint256 __totalSupply
   ) public {
     _oathForgeTokenId = __oathForgeTokenId;
     _auctionAllowedAt = __auctionAllowedAt;
 
     _currencyAddress = __currencyAddress;
     _oathForgeAddress = __oathForgeAddress;
+    _minAuctionCompleteWait = __minAuctionCompleteWait;
+    _minBidDeltaPermille = __minBidDeltaPermille;
 
-    _mint(msg.sender, 10000);
+
+    _mint(msg.sender, __totalSupply);
   }
 
   /// @dev Emits when an auction is started
@@ -73,6 +81,16 @@ contract RiftPact is ERC20 {
   /// @dev Returns the OathForge contract address.
   function oathForgeAddress() external view returns(address) {
     return _oathForgeAddress;
+  }
+
+  /// @dev Returns the minimum amount of time (in seconds) between when a bid is placed and when an auction can be completed.
+  function minAuctionCompleteWait() external view returns(uint256) {
+    return _minAuctionCompleteWait;
+  }
+
+  /// @dev Returns the minimum increase (expressed as 1/1000ths of the current bid) that a subsequent bid must be
+  function minBidDeltaPermille() external view returns(uint256) {
+    return _minBidDeltaPermille;
   }
 
   /// @dev Returns the OathForge token id. **Does not imply RiftPact has ownership over token.**
@@ -128,29 +146,27 @@ contract RiftPact is ERC20 {
     require(_auctionCompletedAt == 0);
     require (bid >= _minBid);
     emit Bid(msg.sender, bid);
+
+    uint256 _totalSupply = totalSupply();
+
     if (_topBidder != address(0)) {
-      require(ERC20(_currencyAddress).transfer(_topBidder, _topBid * totalSupply()));
+      require(ERC20(_currencyAddress).transfer(_topBidder, _topBid * _totalSupply));
     }
-    require(ERC20(_currencyAddress).transferFrom(msg.sender, address(this), bid * totalSupply()));
+    require(ERC20(_currencyAddress).transferFrom(msg.sender, address(this), bid * _totalSupply));
 
     _topBid = bid;
     _topBidder = msg.sender;
     _topBidSubmittedAt = now;
 
-    uint256 minBidDeltaNumerator = bid * _minBidDeltaPerunNumerator;
+    uint256 minBidNumerator = bid * _minBidDeltaPermille;
+    uint256 minBidDelta = minBidNumerator / 1000;
     uint256 minBidRoundUp = 0;
 
-    if(minBidDeltaNumerator % _minBidDeltaPerunDenominator > 0) {
+    if((bid * _minBidDeltaPermille) % 1000 > 0) {
       minBidRoundUp = 1;
     }
 
-    _minBid =  (
-      bid + minBidRoundUp + (
-      (
-        minBidDeltaNumerator / _minBidDeltaPerunDenominator
-      )
-     )
-    );
+    _minBid =  bid + minBidDelta + minBidRoundUp;
   }
 
   /// @dev Complete auction
