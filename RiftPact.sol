@@ -11,46 +11,44 @@ contract RiftPact is ERC20 {
 
   using SafeMath for uint256;
 
-  address private _currencyAddress;
-  address private _oathForgeAddress;
-  uint256 private _minAuctionCompleteWait; // 7 days in seconds
-
-  uint256 private _oathForgeTokenId;
+  uint256 private _parentTokenId;
   uint256 private _auctionAllowedAt;
+  address private _currencyAddress;
+  address private _parentToken;
+  uint256 private _minAuctionCompleteWait;
+  uint256 private _minBidDeltaPermille;
 
   uint256 private _auctionStartedAt;
   uint256 private _auctionCompletedAt;
-  uint256 private _minBidDeltaPermille;
 
   uint256 private _minBid = 1;
   uint256 private _topBid;
   address private _topBidder;
   uint256 private _topBidSubmittedAt;
 
-  /// @param __oathForgeTokenId The id of the token on the OathForge contract
+  /// @param __parentTokenId The id of the token on the OathForge contract
   /// @param __auctionAllowedAt The timestamp at which anyone can start an auction
   /// @param __currencyAddress The address of the DAI contract
-  /// @param __oathForgeAddress The address of the OathForge contract
+  /// @param __parentToken The address of the OathForge contract
   /// @param __minAuctionCompleteWait The minimum amount of time (in seconds) between when a bid is placed and when an auction can be completed
   /// @param __minBidDeltaPermille The minimum increase (expressed as 1/1000ths of the current bid) that a subsequent bid must be
   /// @param __totalSupply The total supply
   constructor(
-    uint256 __oathForgeTokenId,
+    uint256 __parentTokenId,
     uint256 __auctionAllowedAt,
     address __currencyAddress,
-    address __oathForgeAddress,
+    address __parentToken,
     uint256 __minAuctionCompleteWait,
     uint256 __minBidDeltaPermille,
     uint256 __totalSupply
   ) public {
-    _oathForgeTokenId = __oathForgeTokenId;
+    _parentTokenId = __parentTokenId;
     _auctionAllowedAt = __auctionAllowedAt;
 
     _currencyAddress = __currencyAddress;
-    _oathForgeAddress = __oathForgeAddress;
+    _parentToken = __parentToken;
     _minAuctionCompleteWait = __minAuctionCompleteWait;
     _minBidDeltaPermille = __minBidDeltaPermille;
-
 
     _mint(msg.sender, __totalSupply);
   }
@@ -79,8 +77,8 @@ contract RiftPact is ERC20 {
   }
 
   /// @dev Returns the OathForge contract address.
-  function oathForgeAddress() external view returns(address) {
-    return _oathForgeAddress;
+  function parentToken() external view returns(address) {
+    return _parentToken;
   }
 
   /// @dev Returns the minimum amount of time (in seconds) between when a bid is placed and when an auction can be completed.
@@ -94,8 +92,8 @@ contract RiftPact is ERC20 {
   }
 
   /// @dev Returns the OathForge token id. **Does not imply RiftPact has ownership over token.**
-  function oathForgeTokenId() external view returns(uint256) {
-    return _oathForgeTokenId;
+  function parentTokenId() external view returns(uint256) {
+    return _parentTokenId;
   }
 
   /// @dev Returns the timestamp at which anyone can start an auction by calling [`startAuction()`](#startAuction())
@@ -133,7 +131,7 @@ contract RiftPact is ERC20 {
     require(_auctionStartedAt == 0);
     require(
       (now >= _auctionAllowedAt)
-      || (OathForge(_oathForgeAddress).sunsetInitiatedAt(_oathForgeTokenId) > 0)
+      || (OathForge(_parentToken).sunsetInitiatedAt(_parentTokenId) > 0)
     );
     emit AuctionStarted();
     _auctionStartedAt = now;

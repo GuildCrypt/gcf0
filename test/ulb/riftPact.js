@@ -115,8 +115,8 @@ describe('riftPact', () => {
         riftPactStub.resolve(riftPact)
       })
     })
-    it('riftPact should have correct oathForgeTokenId', () => {
-      return riftPact.fetch('oathForgeTokenId()', []).should.eventually.amorphEqual(oathForgeToken.id)
+    it('riftPact should have correct parentTokenId', () => {
+      return riftPact.fetch('parentTokenId()', []).should.eventually.amorphEqual(oathForgeToken.id)
     })
     it('riftPact should have correct auctionAllowedAt', () => {
       return riftPact.fetch('auctionAllowedAt()', []).should.eventually.amorphEqual(auctionAllowedAt)
@@ -124,8 +124,8 @@ describe('riftPact', () => {
     it('riftPact should have correct currencyAddress', () => {
       return riftPact.fetch('currencyAddress()', []).should.eventually.amorphEqual(currency.address)
     })
-    it('riftPact should have correct oathForgeAddress', () => {
-      return riftPact.fetch('oathForgeAddress()', []).should.eventually.amorphEqual(oathForge.address)
+    it('riftPact should have correct parentToken', () => {
+      return riftPact.fetch('parentToken()', []).should.eventually.amorphEqual(oathForge.address)
     })
     it('riftPact should have correct minAuctionCompleteWait', () => {
       return riftPact.fetch('minAuctionCompleteWait()', []).should.eventually.amorphEqual(sevenDays)
