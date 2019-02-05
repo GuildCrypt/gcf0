@@ -11,8 +11,8 @@ contract RiftPact is ERC20 {
 
   using SafeMath for uint256;
 
-  address private _currencyAddress; // TODO: Hard code; Left variable for testability
-  address private _oathForgeAddress; // TODO: Hard code; Left variable for testability
+  address private _currencyAddress;
+  address private _oathForgeAddress;
   uint256 private _minAuctionCompleteWait = 604800; // 7 days in seconds
 
   uint256 private _oathForgeTokenId;
@@ -35,14 +35,14 @@ contract RiftPact is ERC20 {
   constructor(
     uint256 __oathForgeTokenId,
     uint256 __auctionAllowedAt,
-    address __currencyAddress, // TODO: Hard code; Left variable for testability
-    address __oathForgeAddress // TODO: Hard code; Left variable for testability
+    address __currencyAddress,
+    address __oathForgeAddress
   ) public {
     _oathForgeTokenId = __oathForgeTokenId;
     _auctionAllowedAt = __auctionAllowedAt;
 
-    _currencyAddress = __currencyAddress; // TODO: Hard code; Left variable for testability
-    _oathForgeAddress = __oathForgeAddress; // TODO: Hard code; Left variable for testability
+    _currencyAddress = __currencyAddress;
+    _oathForgeAddress = __oathForgeAddress;
 
     _mint(msg.sender, 10000);
   }
