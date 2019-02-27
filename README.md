@@ -222,7 +222,7 @@ Returns the minimum increase (expressed as 1/1000ths of the current bid) that a 
 | `1` | `address` | `newOwner` |  | `true` |
 ---
 #### <a name="parentToken()"></a> `parentToken()`
-Returns the OathForge contract address.
+Returns the OathForge contract address. **UI should check for phishing.**.
 ##### Outputs
 |  | Type | Name | Description |
 |---|---|---|---|

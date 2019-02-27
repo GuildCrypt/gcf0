@@ -74,14 +74,19 @@ contract RiftPact is ERC20, Ownable, ReentrancyGuard {
   /// @param balance The balance of `to` prior to the paying out
   event Payout(address to, uint256 balance);
 
+  /// @dev Returns the OathForge contract address. **UI should check for phishing.**.
+  function parentToken() external view returns(address) {
+    return _parentToken;
+  }
+
+  /// @dev Returns the OathForge token id. **Does not imply RiftPact has ownership over token.**
+  function parentTokenId() external view returns(uint256) {
+    return _parentTokenId;
+  }
+
   /// @dev Returns the currency contract address.
   function currencyAddress() external view returns(address) {
     return _currencyAddress;
-  }
-
-  /// @dev Returns the OathForge contract address.
-  function parentToken() external view returns(address) {
-    return _parentToken;
   }
 
   /// @dev Returns the minimum amount of time (in seconds) between when a bid is placed and when an auction can be completed.
@@ -92,11 +97,6 @@ contract RiftPact is ERC20, Ownable, ReentrancyGuard {
   /// @dev Returns the minimum increase (expressed as 1/1000ths of the current bid) that a subsequent bid must be
   function minBidDeltaPermille() external view returns(uint256) {
     return _minBidDeltaPermille;
-  }
-
-  /// @dev Returns the OathForge token id. **Does not imply RiftPact has ownership over token.**
-  function parentTokenId() external view returns(uint256) {
-    return _parentTokenId;
   }
 
   /// @dev Returns the timestamp at which anyone can start an auction by calling [`startAuction()`](#startAuction())
