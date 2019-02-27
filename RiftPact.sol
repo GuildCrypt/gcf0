@@ -30,27 +30,26 @@ contract RiftPact is ERC20, Ownable, ReentrancyGuard {
 
   mapping(address => bool) private _isBlacklisted;
 
-  /// @param __parentTokenId The id of the token on the OathForge contract
-  /// @param __auctionAllowedAt The timestamp at which anyone can start an auction
-  /// @param __currencyAddress The address of the currency contract
   /// @param __parentToken The address of the OathForge contract
+  /// @param __parentTokenId The id of the token on the OathForge contract
+  /// @param __totalSupply The total supply
+  /// @param __currencyAddress The address of the currency contract
+  /// @param __auctionAllowedAt The timestamp at which anyone can start an auction
   /// @param __minAuctionCompleteWait The minimum amount of time (in seconds) between when a bid is placed and when an auction can be completed
   /// @param __minBidDeltaPermille The minimum increase (expressed as 1/1000ths of the current bid) that a subsequent bid must be
-  /// @param __totalSupply The total supply
   constructor(
-    uint256 __parentTokenId,
-    uint256 __auctionAllowedAt,
-    address __currencyAddress,
     address __parentToken,
+    uint256 __parentTokenId,
+    uint256 __totalSupply,
+    address __currencyAddress,
+    uint256 __auctionAllowedAt,
     uint256 __minAuctionCompleteWait,
-    uint256 __minBidDeltaPermille,
-    uint256 __totalSupply
+    uint256 __minBidDeltaPermille
   ) public {
-    _parentTokenId = __parentTokenId;
-    _auctionAllowedAt = __auctionAllowedAt;
-
-    _currencyAddress = __currencyAddress;
     _parentToken = __parentToken;
+    _parentTokenId = __parentTokenId;
+    _currencyAddress = __currencyAddress;
+    _auctionAllowedAt = __auctionAllowedAt;
     _minAuctionCompleteWait = __minAuctionCompleteWait;
     _minBidDeltaPermille = __minBidDeltaPermille;
 

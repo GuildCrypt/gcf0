@@ -101,13 +101,13 @@ describe('riftPact', () => {
   describe('setup riftPact', () => {
     it('should deploy riftPact', () => {
       return ultralightbeam.solDeploy(riftPactInfo.code, riftPactInfo.abi, [
-        oathForgeToken.id,
-        auctionAllowedAt,
-        currency.address,
         oathForge.address,
+        oathForgeToken.id,
+        tenThousand,
+        currency.address,
+        auctionAllowedAt,
         sevenDays,
-        five,
-        tenThousand
+        five
       ], {
         from: accounts[1]
       }).then((_riftPact) => {
