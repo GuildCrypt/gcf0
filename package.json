@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "oathforge": "^2.0.0",
+    "oathforge": "^4.0.0",
     "openzeppelin-solidity": "^2.0.0",
     "solc": "^0.4.25",
     "ultralightbeam": "^5.1.10"
