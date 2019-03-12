@@ -6,6 +6,8 @@ const path = require('path')
 const zeppelinDir = path.dirname(require.resolve('openzeppelin-solidity/package.json'))
 const zeppelinContractsDir = `${zeppelinDir}/contracts`
 
+const oathforgeDir = path.dirname(require.resolve('oathforge'))
+
 module.exports = solc.compile({
     sources: {
       'math/SafeMath.sol': fs.readFileSync(`${zeppelinContractsDir}/math/SafeMath.sol`, 'utf8'),
@@ -21,7 +23,7 @@ module.exports = solc.compile({
       'ERC20.sol': fs.readFileSync(`${zeppelinContractsDir}/token/ERC20/ERC20.sol`, 'utf8'),
       'utils/ReentrancyGuard.sol': fs.readFileSync(`${zeppelinContractsDir}/utils/ReentrancyGuard.sol`, 'utf8'),
       'ownership/Ownable.sol': fs.readFileSync(`${zeppelinContractsDir}/ownership/Ownable.sol`, 'utf8'),
-      'OathForge.sol': fs.readFileSync(`${__dirname}/node_modules/oathforge/OathForge.sol`, 'utf8'),
+      'OathForge.sol': fs.readFileSync(`${oathforgeDir}/OathForge.sol`, 'utf8'),
       'RiftPact.sol': fs.readFileSync(`${__dirname}/RiftPact.sol`, 'utf8'),
     }
   }, 1)
