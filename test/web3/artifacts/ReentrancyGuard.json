@@ -1,0 +1,15 @@
+{
+  "contractName": "ReentrancyGuard",
+  "abi": [
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ],
+  "bytecode": "0x",
+  "networks": {},
+  "schemaVersion": "3.0.1",
+  "updatedAt": "2019-03-21T14:32:56.524Z"
+}

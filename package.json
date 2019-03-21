@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --bail --timeout 10000 test/ulb"
+    "compile": "node ./compile.js",
+    "test": "npm run compile && mocha --bail --exit --timeout 6000 test/web3 && mocha --bail --exit --timeout 6000 test/ulb",
+    "test:coverage": "env COVERAGE=true solidity-coverage"
   },
   "author": "",
   "license": "ISC",
@@ -26,6 +28,7 @@
     "mocha": "^5.2.0",
     "solspecdown": "^2.1.2",
     "truffle-artifactor": "^4.0.2",
-    "truffle-resolver": "^5.0.2"
+    "truffle-resolver": "^5.0.2",
+    "web3": "^1.0.0-beta.50"
   }
 }
