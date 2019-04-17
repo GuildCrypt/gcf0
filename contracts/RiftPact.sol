@@ -185,8 +185,8 @@ contract RiftPact is ERC20, Ownable, ReentrancyGuard {
     require(balance > 0);
     require(_auctionCompletedAt > 0);
     emit Payout(payee, balance);
-    require(ERC20(_currencyAddress).transfer(payee, balance * _topBid));
     _burn(payee, balance);
+    require(ERC20(_currencyAddress).transfer(payee, balance * _topBid));
   }
 
   /// @dev Returns if an address is blacklisted
