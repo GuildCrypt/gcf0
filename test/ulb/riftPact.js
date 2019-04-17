@@ -415,13 +415,13 @@ describe('riftPact', () => {
   })
   describe('first payout', () => {
     it('accounts[1] should be able to payout', () => {
-      return riftPact.broadcast('payout()', [], {
-        from: accounts[1]
+      return riftPact.broadcast('payout(address)', [accounts[1].address], {
+        from: accounts[0]
       }).getConfirmation()
     })
     it('accounts[0] should NOT be able to payout again', () => {
-      return riftPact.broadcast('payout()', [], {
-        from: accounts[1]
+      return riftPact.broadcast('payout(address)', [accounts[1].address], {
+        from: accounts[0]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
     testRiftPact(6000, [0, 0, 6000, 0, 0], 100500, 100000)
@@ -429,7 +429,7 @@ describe('riftPact', () => {
   })
   describe('second payout', () => {
     it('accounts[2] should be able to payout', () => {
-      return riftPact.broadcast('payout()', [], {
+      return riftPact.broadcast('payout(address)', [accounts[2].address], {
         from: accounts[2]
       }).getConfirmation()
     })
