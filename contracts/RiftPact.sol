@@ -13,10 +13,10 @@ contract RiftPact is ERC20, Ownable, ReentrancyGuard {
 
   using SafeMath for uint256;
 
+  address private _parentToken;
   uint256 private _parentTokenId;
   uint256 private _auctionAllowedAt;
   address private _currencyAddress;
-  address private _parentToken;
   uint256 private _minAuctionCompleteWait;
   uint256 private _minBidDeltaPermille;
 
@@ -69,10 +69,13 @@ contract RiftPact is ERC20, Ownable, ReentrancyGuard {
   /// @param bidder The address of the bidder
   event Bid(address bidder, uint256 bid);
 
-  /// @dev Emits when there is a payout
-  /// @param to The address of the account paying out
-  /// @param balance The balance of `to` prior to the paying out
-  event Payout(address to, uint256 balance);
+  /// @dev Emits when there is a payout (of currency) to a token holder
+  /// @param tokenHolder The address of the tokenHolder paying out
+  /// @param balance The balance of `tokenHolder` prior to paying out
+  event PayoutTokenHolder(address tokenHolder, uint256 balance);
+
+  /// @dev Emits when there is a payout (of the parent token) to the auction winner
+  event PayoutWinner();
 
   /// @dev Returns the OathForge contract address. **UI should check for phishing.**.
   function parentToken() external view returns(address) {
@@ -179,14 +182,21 @@ contract RiftPact is ERC20, Ownable, ReentrancyGuard {
     _auctionCompletedAt = now;
   }
 
-  /// @dev Payout `currency` after auction completed
-  function payout(address payee) external nonReentrant {
-    uint256 balance = balanceOf(payee);
+  /// @dev Payout token holder (with currency) after auction completed
+  function payoutTokenHolder(address tokenHolder) external nonReentrant {
+    uint256 balance = balanceOf(tokenHolder);
     require(balance > 0);
     require(_auctionCompletedAt > 0);
-    emit Payout(payee, balance);
-    _burn(payee, balance);
-    require(ERC20(_currencyAddress).transfer(payee, balance.mul(_topBid)));
+    emit PayoutTokenHolder(tokenHolder, balance);
+    _burn(tokenHolder, balance);
+    require(ERC20(_currencyAddress).transfer(tokenHolder, balance.mul(_topBid)));
+  }
+
+  /// @dev Payout winner (with parent token) after auction completed
+  function payoutWinner() external nonReentrant {
+    require(_auctionCompletedAt > 0);
+    ERC721(_parentToken).transferFrom(address(this), _topBidder, _parentTokenId); //no require since throws on fail transfer
+    emit PayoutWinner();
   }
 
   /// @dev Returns if an address is blacklisted

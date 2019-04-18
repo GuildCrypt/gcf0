@@ -415,12 +415,12 @@ describe('riftPact', () => {
   })
   describe('first payout', () => {
     it('accounts[1] should be able to payout', () => {
-      return riftPact.broadcast('payout(address)', [accounts[1].address], {
+      return riftPact.broadcast('payoutTokenHolder(address)', [accounts[1].address], {
         from: accounts[0]
       }).getConfirmation()
     })
     it('accounts[0] should NOT be able to payout again', () => {
-      return riftPact.broadcast('payout(address)', [accounts[1].address], {
+      return riftPact.broadcast('payoutTokenHolder(address)', [accounts[1].address], {
         from: accounts[0]
       }).getConfirmation().should.be.rejectedWith(FailedTransactionError)
     })
@@ -429,11 +429,21 @@ describe('riftPact', () => {
   })
   describe('second payout', () => {
     it('accounts[2] should be able to payout', () => {
-      return riftPact.broadcast('payout(address)', [accounts[2].address], {
+      return riftPact.broadcast('payoutTokenHolder(address)', [accounts[2].address], {
         from: accounts[2]
       }).getConfirmation()
     })
     testRiftPact(0, [0, 0, 0, 0, 0], 100500, 100000)
     testCurrency(0, [0, 400000000, 600000000, 1000000000, 0])
+  })
+  describe('payout winner', () => {
+    it('should be able to payout winner', () => {
+      return riftPact.broadcast('payoutWinner()', [], {
+        from: accounts[0]
+      }).getConfirmation()
+    })
+    it('should be have transferred ownership of oath token to winner', () => {
+      return oathForge.fetch('ownerOf(uint256)', []).should.eventually.amorphEqual(accounts[4].address)
+    })
   })
 })
