@@ -151,30 +151,30 @@ contract RiftPact is ERC20, Ownable, ReentrancyGuard {
     uint256 _totalSupply = totalSupply();
 
     if (_topBidder != address(0)) {
-      require(ERC20(_currencyAddress).transfer(_topBidder, _topBid * _totalSupply));
+      require(ERC20(_currencyAddress).transfer(_topBidder, _topBid.mul(_totalSupply)));
     }
-    require(ERC20(_currencyAddress).transferFrom(msg.sender, address(this), bid * _totalSupply));
+    require(ERC20(_currencyAddress).transferFrom(msg.sender, address(this), bid.mul(_totalSupply)));
 
     _topBid = bid;
     _topBidder = msg.sender;
     _topBidSubmittedAt = now;
 
-    uint256 minBidNumerator = bid * _minBidDeltaPermille;
-    uint256 minBidDelta = minBidNumerator / 1000;
+    uint256 minBidNumerator = bid.mul(_minBidDeltaPermille);
+    uint256 minBidDelta = minBidNumerator.div(1000);
     uint256 minBidRoundUp = 0;
 
-    if((bid * _minBidDeltaPermille) % 1000 > 0) {
+    if((bid.mul(_minBidDeltaPermille)).mod(1000) > 0) {
       minBidRoundUp = 1;
     }
 
-    _minBid =  bid + minBidDelta + minBidRoundUp;
+    _minBid =  bid.add(minBidDelta).add(minBidRoundUp);
   }
 
   /// @dev Complete auction
   function completeAuction() external {
     require(_auctionCompletedAt == 0);
     require(_topBid > 0);
-    require((_topBidSubmittedAt + _minAuctionCompleteWait) < now);
+    require((_topBidSubmittedAt.add(_minAuctionCompleteWait)) < now);
     emit AuctionCompleted(_topBidder, _topBid);
     _auctionCompletedAt = now;
   }
@@ -186,7 +186,7 @@ contract RiftPact is ERC20, Ownable, ReentrancyGuard {
     require(_auctionCompletedAt > 0);
     emit Payout(payee, balance);
     _burn(payee, balance);
-    require(ERC20(_currencyAddress).transfer(payee, balance * _topBid));
+    require(ERC20(_currencyAddress).transfer(payee, balance.mul(_topBid)));
   }
 
   /// @dev Returns if an address is blacklisted
